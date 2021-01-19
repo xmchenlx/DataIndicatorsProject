@@ -1,11 +1,9 @@
 package com.sjzb.demo.model;
 
 import org.neo4j.ogm.annotation.GeneratedValue;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
-
 import java.util.List;
 
 /**
