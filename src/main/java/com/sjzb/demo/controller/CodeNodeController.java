@@ -2,6 +2,7 @@ package com.sjzb.demo.controller;
 
 import com.sjzb.demo.CodeNodeRepository;
 import com.sjzb.demo.PSRelationRepository;
+import com.sjzb.demo.model.CodeNodeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+
+import static com.sjzb.demo.Result.lxTool.getListFromJson;
 
 /**
  * @ProgramName: demo
@@ -32,12 +36,19 @@ public class CodeNodeController {
 
     @GetMapping("/*")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        long _begin = System.currentTimeMillis();
+
         String queryKey = request.getParameter("q");
-        System.out.println("查询字段："+queryKey);
+        System.out.println("查询字段：" + queryKey);
         String translate = translation(queryKey);
         response.setContentType("text/html;charset=UTF-8");
         response.getWriter().print(translate);
+
+        long _end = System.currentTimeMillis();
+        System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
+//
     }
+
 
     /**
      * @Author: chenlx
@@ -56,6 +67,7 @@ public class CodeNodeController {
 
 //        return getUnkown(queryKey);
     }
+
 
     /**
      * 通过查询key翻译字段
@@ -79,31 +91,60 @@ public class CodeNodeController {
         //2.根据配置查表
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
 //        list.forEach(tbSysConfig -> {
-            String tbNameCn = "代码表";
-            Object content = cnRe.findCodeNodeEntityByNmLike(queryKey);
-            System.out.println(content);
-            if (!content.equals("")) {
-                customTranslationSb.append(getTranslation(tbNameCn, content.toString()));
+        String res = "";
+        List<CodeNodeEntity> cneList = cnRe.findCodeNodeEntityByNmLike(queryKey);
+
+
+        if (cneList.size() == 0) {
+            System.out.println("查询不到数据");
+            return getUnkown(queryKey);
+        }
+
+        for (int i = 0; i < cneList.size(); i++) {
+            //LIKE模糊查询的结点个数遍历
+            CodeNodeEntity tempb = cneList.iterator().next();
+            String tempCneTag = cnRe.findTagByNm(tempb.getNm()).toString();
+//            遍历节点的标签
+            List<String> cneTag = getListFromJson(tempCneTag);
+            res = "来源：";
+            for (int x = 0; x < cneTag.size(); x++) {
+                if (x != 0) res += "、";
+                res += "《" + cneTag.get(x).replace("Optional", "") + "》";
             }
-//        });
+            res += "<br/>";
+            res += "类别：" + cneList.get(0).getSrc() + "<br/>版本：" + cneList.get(0).getVer();
+            res += "<br/><p style='color:gray;text-align:center'>代码如下</p><hr/>";
+
+            int jmax = tempb.getCd().size();
+            res += "<pre>";
+            for (int j = 0; j < jmax; j++) {
+                //当前结点的属性遍历
+                res += "<strong>" + tempb.getCd().get(j) + "</strong>\t" + tempb.getCmnt().get(j) ;
+                if (j != jmax) res += "<br />";
+
+            }
+            res += "</pre>";
+        }
+        customTranslationSb.append(getTranslation("", res));
         customTranslationSb.append("</custom-translation>");
 
         //3.组装返回xml
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
-        youdaodictSb.append("<return-phrase><![CDATA[").append(queryKey).append("]]></return-phrase>")
+        youdaodictSb.append("<return-phrase><![CDATA[").append(cneList.get(0).getNm()).append("]]></return-phrase>")
                 .append(customTranslationSb).append("</yodaodict>");
         return youdaodictSb.toString();
 
     }
 
     private String getUnkown(String queryKey) {
+        String res = "<p>查询不到有关<strong style='color:red'>"+queryKey+"</strong>的信息，调整一下划词范围试试吧！</p>";
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
         youdaodictSb.append("<return-phrase><![CDATA[")
                 .append(queryKey)
                 .append("]]></return-phrase>")
                 .append("<custom-translation>")
                 .append("<translation><content><![CDATA[")
-                .append(queryKey)
+                .append(res)
                 .append("]]></content></translation>")
                 .append("</custom-translation>")
                 .append("</yodaodict>");
@@ -121,7 +162,7 @@ public class CodeNodeController {
     private String getTranslation(String tbNameCn, String content) {
         //拼接翻译内容content
         StringBuffer translation = new StringBuffer();
-        translation.append("<translation><content><![CDATA[《").append(tbNameCn).append("》").append(content).append("]]></content></translation>");
+        translation.append("<translation><content><![CDATA[").append(tbNameCn).append(content).append("]]></content></translation>");
         return translation.toString();
     }
 
@@ -215,7 +256,6 @@ public class CodeNodeController {
 //        return Result.create(true,psRe.findAllByStartNode(Nm));
 //    }
 //
-
 
 
 }
