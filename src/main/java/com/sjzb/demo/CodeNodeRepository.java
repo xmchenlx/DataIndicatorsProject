@@ -25,8 +25,8 @@ public interface CodeNodeRepository extends Neo4jRepository<CodeNodeEntity, Stri
     @Query("match (n)  where n.Nm = $Nm return labels(n)")
     Object findTagByNm(@Param("Nm")String Nm);
 
-    @Query("match (n) where n.Nm = $Nm and n.Cd = $Cd return n")
-    List<CodeNodeEntity> findCodeNodeEntityByNmAndCd(@Param("Nm") String nm, @Param("Cd") String cd);
+//    @Query("match (n) where n.Nm = $Nm and n.Cd = $Cd return n")
+//    List<CodeNodeEntity> findCodeNodeEntityByNmAndCd(@Param("Nm") String nm, @Param("Cd") String cd);
     //cd存储的是数组，该查询写法无效。
 
 

@@ -13,7 +13,7 @@ import java.util.List;
  * @Description: 代码节点
  */
 @Node(value = "代码")
-public class CodeNodeEntity {
+public class CodeNodeEntity extends BaseNodeEntity {
     @Id
     @GeneratedValue
     @Property(name = "Nm")
