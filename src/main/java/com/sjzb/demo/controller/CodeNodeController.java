@@ -1,10 +1,11 @@
 package com.sjzb.demo.controller;
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.lang.TypeReference;
+import com.sjzb.demo.BasicClassWordsNodeRepository;
 import com.sjzb.demo.CodeNodeRepository;
 import com.sjzb.demo.PSRelationRepository;
 import com.sjzb.demo.model.BaseNodeEntity;
+import com.sjzb.demo.service.BasicClassNodeServiceImpl;
+import com.sjzb.demo.service.CodeNodeServiceImpl;
 import com.sjzb.demo.service.youdaoTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-
-import static com.sjzb.demo.Result.lxTool.getListFromJson;
+import java.util.Map;
 
 /**
  * @ProgramName: demo
@@ -31,35 +32,148 @@ public class CodeNodeController {
     CodeNodeRepository cnRe;
 
     @Autowired
+    BasicClassWordsNodeRepository bcwRe;
+
+    @Autowired
     PSRelationRepository psRe;
 
+
     youdaoTool ydtool = new youdaoTool();
+    @Autowired
+    CodeNodeServiceImpl cnService;
+    @Autowired
+    BasicClassNodeServiceImpl basicClassService;
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
+    }
+
+    /**
+     * @Author: chenlx
+     * @Date: 2021-01-27 15:07:38
+     * @Params: null
+     * @Return
+     * @Description: 根据搜寻词查找结点的简要信息，返回列表
+     */
+    public Map<Integer, Object> searchBriefDataInVarietyOfClass(String qk) {
+        Map<Integer, Object> res = new HashMap<>();
+        int index = 0;
+        Map<String, Object> tempQueryNodeList;
+
+        //查找【代码节点】（基础数据标准）
+        tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+
+        //查找【基本词类词节点】
+        tempQueryNodeList = basicClassService.selectBCWInfoByNmLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+
+        return res;
+    }
+
+    /**
+     * @Author: chenlx
+     * @Date: 2021-01-25 16:54:03
+     * @Params: null
+     * @Return
+     * @Description: 往所有实体节点寻找完整的信息
+     */
+    public Map<String, Object> searchFullDataInVarietyOfClass(String qk) {
+        Map<String, Object> res = new HashMap<>();
+        Map<String, Object> tempQueryNodeList;
+        //查询代码节点是否存在数据（Code Node）
+        tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put("nodeName", "CodeNode");
+            res.put("data", tempQueryNodeList);
+            return res;
+        }
+        //查询【基本词类词】节点是否存在数据（Basic And Class Words Node）
+        tempQueryNodeList = basicClassService.selectBCWInfoByNm(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put("nodeName", "BasicAndClassNode");
+            res.put("data", tempQueryNodeList);
+            return res;
+        }
+
+
+        //已知类型节点搜寻完未找到时返回相关信息
+        res.put("nodeName", "_NotFound_");
+        res.put("data", null);
+        return res;
     }
 
     @GetMapping("/*")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         long _begin = System.currentTimeMillis();
 
+        //提取Request信息里的字段
         String queryKey = request.getParameter("q");
         System.out.println("查询字段：" + queryKey);
-//        String translate = translation(queryKey);
-        Object tempNodeList = cnRe.findCodeNodeEntityByNmLike(queryKey);
-        List<BaseNodeEntity> t = Convert.convert(new TypeReference<List<BaseNodeEntity>>() {
-        }, tempNodeList);
-        String translate;
-        if (t.size() == 0) {
+        String translate = "";
+        String dataString = "";
+        int count =0;//查询数量
+
+        //过滤不小心触碰的请求
+        if (queryKey == "Yodao dict Retest" || queryKey == "null") {
+            return;
+        }
+
+        Map<Integer, Object> searchBriefRes = searchBriefDataInVarietyOfClass(queryKey);
+        if (searchBriefRes.size() == 0) {
+            //查询无结果时，返回未知信息
             System.out.println("找不到信息：" + queryKey);
             translate = ydtool.getUnkown(queryKey);
         } else {
-            //获取节点的标签
-            String tNm = t.iterator().next().getNm();
-            String tempCneTag = cnRe.findTagByNm(tNm).toString();
-            List<String> nodeTagList = getListFromJson(tempCneTag);
-            translate = ydtool.translation(queryKey, t,nodeTagList);
+            //循环节点实体数据
+            for (int m = 0; m < searchBriefRes.size(); m++) {
+                Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(m);
+                List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
+                if(m!=0 && m < searchBriefRes.size())dataString += "<hr/>";
+
+                //循环节点内的List数据
+                for (int i = 0; i < queryDataList.size(); i++) {
+//                Map<String, Object> nodeData = (HashMap) searchBriefRes.get(i);
+                    BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
+                    String nodeName = nodeData.getNm();
+                    String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional","");
+//                String nodeName = nodeData.get("node_Nm").toString();
+//                String nodeTag = nodeData.get("node_tag").toString().replace("Optional","");
+                    dataString += (++count) + "、\t<h4 style='display:inline-block;'>" + nodeName + "</h4>\t<a href='#' style='font-size:12px' target='_blank'>查看详情</a>";
+                    dataString += "<p style='text-align:right;font-size:13px'>来源：";
+
+                    dataString += nodeTag + "</p>";
+                    if (i <queryDataList.size() - 1)
+                        dataString += "<hr/>";
+                }
+            }
+
+//            translationList
+            translate = ydtool.translationList(dataString,count);
+
         }
+
+
+//        //查询字段存在的结点实体（在逻辑上表现为：查找查询信息分别来自于哪些分类）
+//        Map<String, Object> searchRes = searchDataInVarietyOfClass(queryKey);
+//        if (searchRes.get("nodeName") == "_NotFound_") {
+//            //查询无结果时，返回未知信息
+//            System.out.println("找不到信息：" + queryKey);
+//            translate = ydtool.getUnkown(queryKey);
+//        } else {
+//            //获取节点的标签
+//            Map<String, Object> nodeData = (HashMap) searchRes.get("data"); //获取结点的数据（多个结点信息用List<实体>表示）
+//            String tNm = nodeData.get("node_Nm").toString(); //获取结点的Nm名称
+//            List<String> nodeTagList = (List<String>) nodeData.get("node_tag"); //获取结点的标签名（多个标签用List<String>表示）
+//            String nodeType = nodeData.get("node_type").toString();
+//            //获取结点的java实体类名称（在传递给有道翻译函数时，根据此名称进行不同属性的读取，以解决各个结点实体属性不一致的问题）
+//
+//            translate = ydtool.translation(queryKey, nodeData.get("node_data"), nodeType, nodeTagList);
+//        }
         response.setContentType("text/html;charset=UTF-8");
         response.getWriter().print(translate);
 
@@ -67,214 +181,4 @@ public class CodeNodeController {
         System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
 //
     }
-
-
-//    /**
-//     * @Author: chenlx
-//     * @Date: 2021-01-15 10:34:16
-//     * @Params: null
-//     * @Return
-//     * @Description: 通过节点的名称进行模糊查询，返回所有可能匹配的结果
-//     */
-//
-//    public String selectCodeNodeByNmLike(String queryKey) {
-////        boolean isfind = true;
-////        Object res = cnRe.findCodeNodeEntityByNmLike(queryKey);
-////        if (res.equals(null)) isfind = false;
-//
-//        return translation(queryKey);
-//
-////        return getUnkown(queryKey);
-//    }
-//
-//
-//    /**
-//     * 通过查询key翻译字段
-//     *
-//     * @param queryKey 查询key
-//     * @return
-//     */
-//    public String translation(String queryKey) {
-//        if (queryKey == null || "".equals(queryKey.trim())) {
-//            System.out.println("查询字段为空");
-//            return getUnkown(queryKey);
-//        }
-//
-////        //1.查询所有配置
-////        List<CodeNodeEntity> list = cnRe.findCodeNodeEntityByNmLike(queryKey);
-////        if (list == null) {
-////            System.out.println("参数表未配置");
-////            return getUnkown(queryKey);
-////        }
-//
-//        //2.根据配置查表
-//        StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
-////        list.forEach(tbSysConfig -> {
-//        String res = "";
-//        List<CodeNodeEntity> cneList = cnRe.findCodeNodeEntityByNmLike(queryKey);
-//
-//
-//        if (cneList.size() == 0) {
-//            System.out.println("查询不到数据");
-//            return getUnkown(queryKey);
-//        }
-//
-//        for (int i = 0; i < cneList.size(); i++) {
-//            //LIKE模糊查询的结点个数遍历
-//            CodeNodeEntity tempb = cneList.iterator().next();
-//            String tempCneTag = cnRe.findTagByNm(tempb.getNm()).toString();
-////            遍历节点的标签
-//            List<String> cneTag = getListFromJson(tempCneTag);
-//            res = "来源：";
-//            for (int x = 0; x < cneTag.size(); x++) {
-//                if (x != 0) res += "、";
-//                res += "《" + cneTag.get(x).replace("Optional", "") + "》";
-//            }
-//            res += "<br/>";
-//            res += "类别：" + cneList.get(0).getSrc() + "<br/>版本：" + cneList.get(0).getVer();
-//            res += "<br/><p style='color:gray;text-align:center'>代码如下</p><hr/>";
-//
-//            int jmax = tempb.getCd().size();
-//            res += "<pre>";
-//            for (int j = 0; j < jmax; j++) {
-//                //当前结点的属性遍历
-//                res += "<strong>" + tempb.getCd().get(j) + "</strong>\t" + tempb.getCmnt().get(j);
-//                if (j != jmax) res += "<br />";
-//
-//            }
-//            res += "</pre>";
-//        }
-//        customTranslationSb.append(getTranslation("", res));
-//        customTranslationSb.append("</custom-translation>");
-//
-//        //3.组装返回xml
-//        StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
-//        youdaodictSb.append("<return-phrase><![CDATA[").append(cneList.get(0).getNm()).append("]]></return-phrase>")
-//                .append(customTranslationSb).append("</yodaodict>");
-//        return youdaodictSb.toString();
-//
-//    }
-//
-//    private String getUnkown(String queryKey) {
-//        String res = "<p>查询不到有关<strong style='color:red'>" + queryKey + "</strong>的信息，调整一下划词范围试试吧！</p>";
-//        StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
-//        youdaodictSb.append("<return-phrase><![CDATA[")
-//                .append(queryKey)
-//                .append("]]></return-phrase>")
-//                .append("<custom-translation>")
-//                .append("<translation><content><![CDATA[")
-//                .append(res)
-//                .append("]]></content></translation>")
-//                .append("</custom-translation>")
-//                .append("</yodaodict>");
-//        return youdaodictSb.toString();
-//    }
-//
-//
-//    /**
-//     * 组装翻译
-//     *
-//     * @param tbNameCn
-//     * @param content
-//     * @return
-//     */
-//    private String getTranslation(String tbNameCn, String content) {
-//        //拼接翻译内容content
-//        StringBuffer translation = new StringBuffer();
-//        translation.append("<translation><content><![CDATA[").append(tbNameCn).append(content).append("]]></content></translation>");
-//        return translation.toString();
-//    }
-//
-////    /**
-////     * @Author: chenlx
-////     * @Date: 2021-01-15 15:57:34
-////     * @Params: null
-////     * @Return
-////     * @Description: 添加一个结点
-////     */
-////    @PostMapping("addOneCodeNode")
-////    public Result createOneCodeNode(@RequestBody CodeNodeEntity cne) {
-////        long _begin = System.currentTimeMillis();
-////        cnRe.save(cne);
-////
-////        long _end = System.currentTimeMillis();
-////        System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
-////
-////        return Result.create(true);
-////    }
-////
-////    /**
-////     * @Author: chenlx
-////     * @Date: 2021-01-15 10:34:53
-////     * @Params: null
-////     * @Return
-////     * @Description: 通过具体的代码节点名称与代码cd，查询该代码的详细信息
-////     */
-////    @GetMapping("getOnePropertyOfCodeNodeBynm_cd")
-////    public Result getOneColumnPropertyOfCodeNodeByCd(String nm, String cd) {
-////        long _begin = System.currentTimeMillis();
-////        boolean isFind = false;
-////        int index = -1;
-////        Collection<CodeNodeEntity> ccn = cnRe.findCodeNodeEntityByNm(nm);
-////        if (ccn.equals(null)) {
-////            isFind = false;
-////            if (!isFind) {
-////                long _end = System.currentTimeMillis();
-////
-////                System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
-////
-////                return Result.create(true, "NO_NODE_OR_PROPERTY", null);
-////            }
-////        }
-////
-////        CodeNodeEntity b = ccn.iterator().next();
-////
-////        for (Object c : b.getCd()) {
-////            index++;
-////            if (cd.equals(c)) {
-////                isFind = true;
-////                break;
-////            }
-////        }
-////
-////        if (!isFind) {
-////            long _end = System.currentTimeMillis();
-////            System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
-////            return Result.create(true, "NO_DATA", null);
-////        }
-////
-////        Map<String, Object> res = new HashMap<>();
-////        res.put("_ColumnIndex", index);
-////        res.put("Cd", b.getCd().get(index));
-////        res.put("Nm", b.getNm());
-////        res.put("Cmnt", b.getCmnt().get(index));
-////        if ("".equals(getStringFromStringValue(b.getDef().toString()))) {
-////            res.put("Def", "/");
-////        } else {
-////            List<String> tempDef = getListFromJson(b.getDef().toString());
-////            res.put("Def", tempDef.get(index));
-////        }
-////        res.put("Src", b.getSrc());
-////        res.put("Ver", b.getVer());
-////        res.put("Orig", b.getOrig() == null ? null : b.getOrig().get(index));
-////        res.put("Lvl", b.getLvl() == null ? b.getLvl() : b.getLvl().get(index));
-////        res.put("Cty_En_Nm", b.getCty_en_nm() == null ? null : b.getCty_en_nm().get(index));
-////        res.put("Ltr_Cd", b.getLtr_cd() == null ? null : b.getLtr_cd().get(index));
-////        res.put("En_2Snm", b.getEn_2snm() == null ? null : b.getEn_2snm().get(index));
-////        res.put("Digt_Cd", b.getDigt_cd() == null ? null : b.getDigt_cd().get(index));
-////        res.put("Cty_Nm", b.getCty_nm() == null ? null : b.getCty_nm().get(index));
-////        long _end = System.currentTimeMillis();
-////        System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
-////        return Result.create(isFind, res);
-////    }
-////
-////
-////
-////    @GetMapping("re/getBloodRelation")
-////    public Result getBloodRelationOfCodeNode(String Nm){
-////        return Result.create(true,psRe.findAllByStartNode(Nm));
-////    }
-////
-
-
 }

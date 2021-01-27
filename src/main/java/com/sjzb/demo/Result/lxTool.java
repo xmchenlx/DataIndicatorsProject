@@ -3,7 +3,9 @@ package com.sjzb.demo.Result;
 import cn.hutool.core.convert.Convert;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ProgramName: demo
@@ -47,5 +49,14 @@ public class lxTool {
             String per = json.replace("[","").replace("]","").replace("\"","");
 
             return Convert.convert(String.class, per);
+    }
+
+
+    public Map<String,Object> generateRes(){
+        Map<String,Object>  res = new HashMap<>();
+
+
+
+        return res;
     }
 }
