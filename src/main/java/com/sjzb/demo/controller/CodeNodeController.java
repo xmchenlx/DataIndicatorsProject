@@ -116,7 +116,22 @@ public class CodeNodeController {
         System.out.println("查询字段：" + queryKey);
         String translate = "";
         String dataString = "";
-        int count =0;//查询数量
+        String a = "" +
+                "function research($v){  alert($v);document.getElementsByTagName('input')[0].value = $v;}" +
+//                "var p = document.body.getElementsByTagName('*');" +
+//                "document.getElementById('tes').innerHTML = p;" +
+//                "window.location.reload()" +
+//                "$('p').click(function(){alert('测试')})" +
+
+                "function selfHighLightCSS(){alert('asd');document.body.innerHTML+='!2';event.target.style.color='red';}" +
+                "function selfRemoveLightCSS(){event.target.style.color='lightcoral'}" +
+//                "$('.listText').live(\"click\",function(){selfHighLightCSS(this)});"+
+
+//                "</script>" +
+                "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} .listText:hover{color:lightcoral;font-weight:bold;cursor:pointer}</style>"
+                +"";
+//        dataString += a;
+        int count = 0;//查询数量
 
         //过滤不小心触碰的请求
         if (queryKey == "Yodao dict Retest" || queryKey == "null") {
@@ -133,27 +148,30 @@ public class CodeNodeController {
             for (int m = 0; m < searchBriefRes.size(); m++) {
                 Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(m);
                 List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
-                if(m!=0 && m < searchBriefRes.size())dataString += "<hr/>";
-
+//                if (m != 0 && m < searchBriefRes.size()) dataString += "<hr/>";
+//                String hightlightcss ="on"
                 //循环节点内的List数据
+                String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
+                dataString += "<h5 style='color:black;'>" + nodeTag + "（" + queryDataList.size() + "项）</h5>";
                 for (int i = 0; i < queryDataList.size(); i++) {
 //                Map<String, Object> nodeData = (HashMap) searchBriefRes.get(i);
                     BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
                     String nodeName = nodeData.getNm();
-                    String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional","");
 //                String nodeName = nodeData.get("node_Nm").toString();
 //                String nodeTag = nodeData.get("node_tag").toString().replace("Optional","");
-                    dataString += (++count) + "、\t<h4 style='display:inline-block;'>" + nodeName + "</h4>\t<a href='#' style='font-size:12px' target='_blank'>查看详情</a>";
-                    dataString += "<p style='text-align:right;font-size:13px'>来源：";
-
-                    dataString += nodeTag + "</p>";
-                    if (i <queryDataList.size() - 1)
-                        dataString += "<hr/>";
+                    count++;
+                    dataString += "<p class='listText' onmousemove='selfHighLightCSS(this)' onclick='research(\""+nodeName+"\")'>" + nodeName + "</p>";
+ //                    dataString += "<p style='text-align:right;font-size:13px'>来源：";
+//
+//                    dataString += nodeTag + "</p>";
+//                    if (i < queryDataList.size() - 1)
+//                        dataString += "<hr/>";
                 }
+                dataString += "<br/>";
             }
 
 //            translationList
-            translate = ydtool.translationList(dataString,count);
+            translate = ydtool.translationList(dataString, count,a);
 
         }
 
@@ -175,6 +193,7 @@ public class CodeNodeController {
 //            translate = ydtool.translation(queryKey, nodeData.get("node_data"), nodeType, nodeTagList);
 //        }
         response.setContentType("text/html;charset=UTF-8");
+        System.out.println(translate);
         response.getWriter().print(translate);
 
         long _end = System.currentTimeMillis();

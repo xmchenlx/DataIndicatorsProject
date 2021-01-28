@@ -25,14 +25,17 @@ public class youdaoTool {
      * @Return
      * @Description: 首次查询时，不查询所有的信息，而是取出摘要形成信息列表并且返回
      */
-    public String translationList(String dataString,int count){
+    public String translationList(String dataString,int count,String a){
         String res = "找到"+count+"项结果";
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
         youdaodictSb.append("<return-phrase><![CDATA[")
                 .append(res)
                 .append("]]></return-phrase>")
                 .append("<custom-translation>")
-                .append("<translation><content><![CDATA[")
+                .append("<translation><content><script type=\"text/javascript\">")
+                .append(a)
+                .append("</script>")
+                .append("<![CDATA[")
                 .append(dataString)
                 .append("]]></content></translation>")
                 .append("</custom-translation>")
