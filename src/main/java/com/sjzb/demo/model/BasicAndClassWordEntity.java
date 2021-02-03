@@ -24,8 +24,6 @@ public class BasicAndClassWordEntity  extends  BaseNodeEntity{
     private String cl;
 
 
-
-
     public BasicAndClassWordEntity() {
     }
 

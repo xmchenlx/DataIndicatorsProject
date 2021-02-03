@@ -1,8 +1,10 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.CodeNodeRepository;
+import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.BaseNodeEntity;
+import com.sjzb.demo.model.DataSourceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -12,49 +14,51 @@ import java.util.List;
  * @Date: 2021-01-20 15:03:45
  * @Description:
  */
-public class youdaoTool {
+@Component
+public class  youdaoTool {
+
+    //    @Autowired
+//    private CodeNodeRepository cnRe;
+    private lxTool lxtool = new lxTool();
 
     @Autowired
-    CodeNodeRepository cnRe;
+    dataSourceServiceImpl dsService;
+
+
 
     /**
-     *
      * @Author: chenlx
      * @Date: 2021-01-27 14:41:50
      * @Params: null
      * @Return
      * @Description: 首次查询时，不查询所有的信息，而是取出摘要形成信息列表并且返回
      */
-    public String translationList(String dataString,int count,String a){
-        String res = "找到"+count+"项结果";
+    public String translationList(String dataString, int count, String a) {
+        String res = "找到" + count + "项结果";
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
         youdaodictSb.append("<return-phrase><![CDATA[")
                 .append(res)
                 .append("]]></return-phrase>")
                 .append("<custom-translation>")
-                .append("<translation><content><script type=\"text/javascript\">")
-                .append(a)
-                .append("</script>")
+                .append("<translation><content>")
                 .append("<![CDATA[")
+                .append(a)
                 .append(dataString)
                 .append("]]></content></translation>")
                 .append("</custom-translation>")
                 .append("</yodaodict>");
         return youdaodictSb.toString();
-//        //2.
-//        StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
-//
-//        customTranslationSb.append("找到以下结果");
-//        customTranslationSb.append("</custom-translation>");
-//
-//        //3.组装返回xml
-//        StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
-//        youdaodictSb.append("<return-phrase><![CDATA[").append(dataString).append("]]></return-phrase>")
-//
-//                .append(customTranslationSb).append("</yodaodict>");
-//        return youdaodictSb.toString();
+    }
 
-
+    public String getCnByNm(DataSourceEntity dse, String nm) {
+        String res = "";
+        for (int i = 0; i < dse.getAttr().size(); i++) {
+            if (dse.getAttr().get(i).equals(nm)) {
+                res = dse.getCn().get(i);
+                break;
+            }
+        }
+        return res;
     }
 
     /**
@@ -71,50 +75,42 @@ public class youdaoTool {
         }
         //根据传递的类名nodeType 实例化List<XXX>
         List<?> nodeList = (List<?>) oriNodeList;
+        //获取节点类型英文名称，转换为中文名称-Nm
+        String typeCnName = lxtool.nodeTypeConvert2ZHCN(nodeType);
+        //根据中文名称查询 数据元节点的属性信息
+        List<DataSourceEntity> dataSourceList = dsService.getDataSource(typeCnName);
 
         if (nodeList.size() == 0) {
             System.out.println("查询不到数据");
             return getUnkown(queryKey);
         }
 
-//        //1.查询所有配置
-//        List<CodeNodeEntity> list = cnRe.findCodeNodeEntityByNmLike(queryKey);
-//        if (list == null) {
-        //System.out.println("参数表未配置");
-        //return getUnkown(queryKey);
-//        }
-
-//        String tNm = nodeList.iterator().next().getNm();
-//        String tempCneTag = cnRe.findTagByNm(tNm).toString();
-//        List<String> nodeTagList = getListFromJson(tempCneTag);
-
-
-        //2.根据配置查表
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
-//        list.forEach(tbSysConfig -> {
         String res = "";
-//        List<CodeNodeEntity> nodeList = cnRe.findCodeNodeEntityByNmLike(queryKey);
-//        List<queryEntity> nodeList = cnRe.findCodeNodeEntityByNmLike(queryKey);
+        res += "<style>span{display:-moz-inline-box;display:inline-block;}.infotitle{text-align:left;width:70px;max-width:70px;text-align:right;}.infotext{text-align:left;font-weight:bold;}</style>";
 
+//        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
+                res += "";
                 BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
+                res += "<a href='javascript:history.back(-1);' style='font-size:15px;'>返回</a> <br/> ";
+                res += "<pre>";
                 //遍历节点的标签
-                res = "来源：";
+                res += "<span class='infotitle'>来源：</span><span class='infotext'>";
                 for (int x = 0; x < nodeTagList.size(); x++) {
-                    if (x != 0) res += "、";
                     res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
                 }
-                res += "<br/>";
-                //res += "类别：" + nodeList.get(0).getSrc() + "<br/>版本：" + nodeList.get(0).getVer();
-                res += "<br/><p style='color:gray;text-align:center'>代码如下</p><hr/>";
+                res += "</span><br/>";
 
-                res += "<br/><a href='http://localhost://6868/query' target='_blank'>测试外链</a><hr/>";
+                res +="<span class='infotitle'>"+ getCnByNm(dataSourceList.get(0),"Src")+"：</span><span class='infotext'>" + tempb.getSrc() + " </span><br/><span class='infotitle'>"+getCnByNm(dataSourceList.get(0),"Ver")+"：</span><span class='infotext'>" + tempb.getVer()+"</span>";
+                res += "" +
+//                        "<p style='color:gray;text-align:center'>代码</p>" +
+                        "<hr/>";
                 //遍历代码（Cd、Cmnt）
                 int jmax = tempb.getCd().size();
 
-                res += "<pre>";
                 for (int j = 0; j < jmax; j++) {
                     //当前结点的属性遍历
                     res += "<strong>" + tempb.getCd().get(j) + "</strong>\t" + tempb.getCmnt().get(j);
@@ -123,18 +119,23 @@ public class youdaoTool {
                 }
                 res += "</pre>";
             }
+//            处理基本词类词结点
         } else if (nodeType == "BasicAndClassWordEntity") {
+            res += "<a href='javascript:history.back(-1);' style='text-decoration:underline;font-size:15px;'>关闭详细</a><br/>  ";
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
-                BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
+                BaseNodeEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (BaseNodeEntity) nodeList.get(i);
                 //遍历节点的标签
-                res = "来源：";
+                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                遍历标签名称
                 for (int x = 0; x < nodeTagList.size(); x++) {
                     if (x != 0) res += "、";
                     res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
                 }
-                res += "<br/>";
-                res += "Nm： <strong>" + tempb.getNm() + "</strong>";
+//                获取Nm属性的中文名称与Nm值
+                res += "</span><br/><span class='infotitle'>";
+                res += getCnByNm(dataSourceList.get(0),"Nm")+"：</span><span class='infotext'>" + tempb.getNm() + "</span><br/>";
 
             }
         }
@@ -159,7 +160,7 @@ public class youdaoTool {
      * @Description: 未查询到结果时返回的xml信息
      */
     public String getUnkown(String queryKey) {
-        String res = "<p>查询不到有关<strong style='color:red'>" + queryKey + "</strong>的信息，调整一下划词范围试试吧！</p>";
+        String res = "<p>查询不到有关<span style='color:red'>" + queryKey + "</span>的信息，请尝试调整一下划词范围吧！</p>";
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
         youdaodictSb.append("<return-phrase><![CDATA[")
                 .append(queryKey)

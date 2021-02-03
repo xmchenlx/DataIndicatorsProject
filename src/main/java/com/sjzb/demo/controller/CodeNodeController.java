@@ -1,8 +1,5 @@
 package com.sjzb.demo.controller;
 
-import com.sjzb.demo.BasicClassWordsNodeRepository;
-import com.sjzb.demo.CodeNodeRepository;
-import com.sjzb.demo.PSRelationRepository;
 import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.service.BasicClassNodeServiceImpl;
 import com.sjzb.demo.service.CodeNodeServiceImpl;
@@ -28,21 +25,26 @@ import java.util.Map;
 @RestController
 public class CodeNodeController {
 
-    @Autowired
-    CodeNodeRepository cnRe;
+//    @Autowired
+//    CodeNodeRepository cnRe;
+//
+//    @Autowired
+//    BasicClassWordsNodeRepository bcwRe;
 
     @Autowired
-    BasicClassWordsNodeRepository bcwRe;
-
-    @Autowired
-    PSRelationRepository psRe;
+    youdaoTool ydtool;
 
 
-    youdaoTool ydtool = new youdaoTool();
+//    youdaoTool ydtool = new youdaoTool();
+
     @Autowired
     CodeNodeServiceImpl cnService;
     @Autowired
     BasicClassNodeServiceImpl basicClassService;
+
+//    @Autowired
+//    dataSourceServiceImpl dsService;
+
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
@@ -115,21 +117,14 @@ public class CodeNodeController {
         String queryKey = request.getParameter("q");
         System.out.println("查询字段：" + queryKey);
         String translate = "";
-        String dataString = "";
+        String dataString = "<div style='width:100%;' onmouseout='javascript:history.back(-1);'>";
         String a = "" +
-                "function research($v){  alert($v);document.getElementsByTagName('input')[0].value = $v;}" +
-//                "var p = document.body.getElementsByTagName('*');" +
-//                "document.getElementById('tes').innerHTML = p;" +
-//                "window.location.reload()" +
-//                "$('p').click(function(){alert('测试')})" +
-
-                "function selfHighLightCSS(){alert('asd');document.body.innerHTML+='!2';event.target.style.color='red';}" +
-                "function selfRemoveLightCSS(){event.target.style.color='lightcoral'}" +
-//                "$('.listText').live(\"click\",function(){selfHighLightCSS(this)});"+
-
+//                "<script>" +
+//                "function research($v){  " +
+//                "   alert($v);document.getElementsByTagName('input')[0].value = $v;document.getElementById('tes').innerHTML = $v}" +
 //                "</script>" +
-                "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} .listText:hover{color:lightcoral;font-weight:bold;cursor:pointer}</style>"
-                +"";
+                "<style>*{color:black;}.listText{color:darkred; font-size:16px;margin:0;padding:0;} .listText:hover{color:lightcoral;font-weight:bold;cursor:pointer}</style>"
+                + "";
 //        dataString += a;
         int count = 0;//查询数量
 
@@ -144,35 +139,40 @@ public class CodeNodeController {
             System.out.println("找不到信息：" + queryKey);
             translate = ydtool.getUnkown(queryKey);
         } else {
-            //循环节点实体数据
-            for (int m = 0; m < searchBriefRes.size(); m++) {
-                Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(m);
-                List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
-//                if (m != 0 && m < searchBriefRes.size()) dataString += "<hr/>";
-//                String hightlightcss ="on"
-                //循环节点内的List数据
-                String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
-                dataString += "<h5 style='color:black;'>" + nodeTag + "（" + queryDataList.size() + "项）</h5>";
-                for (int i = 0; i < queryDataList.size(); i++) {
-//                Map<String, Object> nodeData = (HashMap) searchBriefRes.get(i);
-                    BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
-                    String nodeName = nodeData.getNm();
-//                String nodeName = nodeData.get("node_Nm").toString();
-//                String nodeTag = nodeData.get("node_tag").toString().replace("Optional","");
-                    count++;
-                    dataString += "<p class='listText' onmousemove='selfHighLightCSS(this)' onclick='research(\""+nodeName+"\")'>" + nodeName + "</p>";
- //                    dataString += "<p style='text-align:right;font-size:13px'>来源：";
-//
-//                    dataString += nodeTag + "</p>";
-//                    if (i < queryDataList.size() - 1)
-//                        dataString += "<hr/>";
+            //查询结果只有1条时，直接呈现详细结果
+            if (searchBriefRes.size() == 1) {
+                count++;
+                Map<String, Object> tempMap = new HashMap<>();
+                tempMap = (Map<String, Object>) searchBriefRes.get(0);
+
+                translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"));
+                translate = translate;
+
+            } else {
+//                查询结果多条时，呈现结果列表
+                //循环节点实体数据
+                for (int m = 0; m < searchBriefRes.size(); m++) {
+                    Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(m);
+                    List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
+                    //循环节点内的List数据
+                    String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
+                    int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
+                    String ifMaxOver50Str = (maxNum == 50 ? "，仅展示前50项" : "");
+                    dataString += "<h5 style='color:black;'>在 " + nodeTag + " 里找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
+                    for (int i = 0; i < maxNum; i++) {
+                        BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
+                        String nodeName = nodeData.getNm();
+                        count++;
+                        dataString += "<p class='listText'><a href='http://localhost:6868?q=" + nodeName + "'>" + nodeName + "</a></p>";
+                    }
+                    dataString += "<br/>";
+//                    dataString += "<a href='./huaci.html' target='_blank'>关闭详细</a><br/>  ";
+
                 }
-                dataString += "<br/>";
+//                dataString+="</div>";
+                translate = ydtool.translationList(dataString, count, a);
+
             }
-
-//            translationList
-            translate = ydtool.translationList(dataString, count,a);
-
         }
 
 

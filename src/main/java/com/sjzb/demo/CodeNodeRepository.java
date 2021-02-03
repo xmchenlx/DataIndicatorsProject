@@ -17,6 +17,7 @@ public interface CodeNodeRepository extends Neo4jRepository<CodeNodeEntity, Stri
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 
+
     @Query("MATCH (n:`代码`) where n.Nm =~('.*'+$Nm+'.*') RETURN n")
     List<CodeNodeEntity> findCodeNodeEntityByNmLike(@Param("Nm") String nm);
 

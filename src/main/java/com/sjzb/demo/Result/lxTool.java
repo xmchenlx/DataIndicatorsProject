@@ -15,19 +15,18 @@ import java.util.Map;
  */
 public class lxTool {
     /**
-     *
      * @Author: chenlx
      * @Date: 2021-01-15 9:48:48
      * @Params: jsonString
      * @Return List<String></String>
      * @Description: 针对Neo4j驱动包提供的ListValue类型进行转换成普通的ArrayList
      */
-    public static List<String> getListFromJson(String json){
-        if(StringUtils.isNotEmpty(json)){
-            String[] per = json.replace("[","").replace("]","").replace("\"","").split(",");
+    public static List<String> getListFromJson(String json) {
+        if (StringUtils.isNotEmpty(json)) {
+            String[] per = json.replace("[", "").replace("]", "").replace("\"", "").split(",");
 
             String[] permissions = new String[per.length];
-            for (int i =0; i< per.length; i++)
+            for (int i = 0; i < per.length; i++)
                 if (StringUtils.isNotEmpty(per[i]) && per[i].length() > 2) {
 //                    permissions[i] = per[i].substring(1, per[i].length() - 1);
                     permissions[i] = per[i];
@@ -38,25 +37,33 @@ public class lxTool {
     }
 
     /**
-     *
      * @Author: chenlx
      * @Date: 2021-01-15 11:29:25
      * @Params: null
      * @Return
      * @Description: 去除伪json的符号，转成普通String格式，虽然没什么必要
      */
-    public static String getStringFromStringValue(String json){
-            String per = json.replace("[","").replace("]","").replace("\"","");
+    public static String getStringFromStringValue(String json) {
+        String per = json.replace("[", "").replace("]", "").replace("\"", "");
 
-            return Convert.convert(String.class, per);
+        return Convert.convert(String.class, per);
+    }
+
+    public String nodeTypeConvert2ZHCN(String name) {
+        if (name == "CodeNodeEntity")
+            return "代码";
+        else if (name == "BasicAndClassWordEntity")
+            return "标准别名";
+//            return "基本词类词";
+        else if (name == "")
+            return "标准别名";
+        else
+            return "未知";
     }
 
 
-    public Map<String,Object> generateRes(){
-        Map<String,Object>  res = new HashMap<>();
-
-
-
+    public Map<String, Object> generateRes() {
+        Map<String, Object> res = new HashMap<>();
         return res;
     }
 }
