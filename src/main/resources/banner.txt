@@ -1,0 +1,24 @@
+
+
+ZZZZZZZZZZZZZZZZZZZHHHHHHHHH     HHHHHHHHHRRRRRRRRRRRRRRRRR   XXXXXXX       XXXXXXX
+Z:::::::::::::::::ZH:::::::H     H:::::::HR::::::::::::::::R  X:::::X       X:::::X
+Z:::::::::::::::::ZH:::::::H     H:::::::HR::::::RRRRRR:::::R X:::::X       X:::::X
+Z:::ZZZZZZZZ:::::Z HH::::::H     H::::::HHRR:::::R     R:::::RX::::::X     X::::::X
+ZZZZZ     Z:::::Z    H:::::H     H:::::H    R::::R     R:::::RXXX:::::X   X:::::XXX
+        Z:::::Z      H:::::H     H:::::H    R::::R     R:::::R   X:::::X X:::::X
+       Z:::::Z       H::::::HHHHH::::::H    R::::RRRRRR:::::R     X:::::X:::::X
+      Z:::::Z        H:::::::::::::::::H    R:::::::::::::RR       X:::::::::X
+     Z:::::Z         H:::::::::::::::::H    R::::RRRRRR:::::R      X:::::::::X
+    Z:::::Z          H::::::HHHHH::::::H    R::::R     R:::::R    X:::::X:::::X
+   Z:::::Z           H:::::H     H:::::H    R::::R     R:::::R   X:::::X X:::::X
+ZZZ:::::Z     ZZZZZ  H:::::H     H:::::H    R::::R     R:::::RXXX:::::X   X:::::XXX
+Z::::::ZZZZZZZZ:::ZHH::::::H     H::::::HHRR:::::R     R:::::RX::::::X     X::::::X
+Z:::::::::::::::::ZH:::::::H     H:::::::HR::::::R     R:::::RX:::::X       X:::::X
+Z:::::::::::::::::ZH:::::::H     H:::::::HR::::::R     R:::::RX:::::X       X:::::X
+ZZZZZZZZZZZZZZZZZZZHHHHHHHHH     HHHHHHHHHRRRRRRRR     RRRRRRRXXXXXXX       XXXXXXX
+
+
+
+
+
+

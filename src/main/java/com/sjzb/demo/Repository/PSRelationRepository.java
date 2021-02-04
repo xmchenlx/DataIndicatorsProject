@@ -1,4 +1,4 @@
-package com.sjzb.demo;
+package com.sjzb.demo.Repository;
 
 import com.sjzb.demo.model.LikeRelation;
 import org.springframework.data.neo4j.repository.Neo4jRepository;

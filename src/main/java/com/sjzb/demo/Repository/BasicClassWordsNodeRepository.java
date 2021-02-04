@@ -1,4 +1,4 @@
-package com.sjzb.demo;
+package com.sjzb.demo.Repository;
 
 import com.sjzb.demo.model.BasicAndClassWordEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -17,15 +17,17 @@ public interface BasicClassWordsNodeRepository extends Neo4jRepository<BasicAndC
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 
-
-    @Query("MATCH (a:`基本词类词`)-[:abbr]->(b:`基本词类词`) WHERE a.Nm = $Nm return b")
+    @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm = $Nm return b")
     List<BasicAndClassWordEntity> findBasicAndClassWordEntitiesByNm(@Param("Nm") String nm);
 
-        @Query("MATCH (a:`基本词类词`)-[:abbr]->(b:`基本词类词`) WHERE a.Nm=~('.*'+$Nm+'.*') return b")
+    @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm = $Nm and b.Nm =~('.*'+$BNm+'.*')  return b")
+    List<BasicAndClassWordEntity> findBasicAndClassWordEntitiesByNm(@Param("Nm") String nm, @Param("BNm") String bnm);
+
+    @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm=~('.*'+$Nm+'.*') return a")
     List<BasicAndClassWordEntity> findBasicAndClassWordEntitiesByNmLike(@Param("Nm") String nm);
 
 
     @Query("match (n:`基本词类词`)  where n.Nm = $Nm return labels(n)")
-    Object findTagByNm(@Param("Nm")String Nm);
+    Object findTagByNm(@Param("Nm") String Nm);
 
 }

@@ -50,6 +50,9 @@ public class CodeNodeEntity extends BaseNodeEntity {
 
 
 
+
+
+
     @Property(name = "Digt_Cd")
     private List<String> digt_cd;
     @Property(name = "Cty_Nm")

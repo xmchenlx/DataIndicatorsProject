@@ -13,7 +13,7 @@ import org.springframework.data.neo4j.core.schema.Property;
  */
 
 @Node(value = "基本词类词")
-public class BasicAndClassWordEntity  extends  BaseNodeEntity{
+public class BasicAndClassWordEntity extends BaseNodeEntity {
 
     @Id
     @GeneratedValue

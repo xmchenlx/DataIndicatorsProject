@@ -2,7 +2,7 @@ package com.sjzb.demo.model;
 
 import org.neo4j.ogm.annotation.GraphId;
 import org.neo4j.ogm.annotation.Property;
-
+//import org.springframework.data.neo4j.core.schema.Property;
 import java.util.List;
 
 /**

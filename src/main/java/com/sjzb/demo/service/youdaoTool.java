@@ -2,6 +2,7 @@ package com.sjzb.demo.service;
 
 import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.BaseNodeEntity;
+import com.sjzb.demo.model.BasicAndClassWordEntity;
 import com.sjzb.demo.model.DataSourceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,15 +16,12 @@ import java.util.List;
  * @Description:
  */
 @Component
-public class  youdaoTool {
+public class youdaoTool {
 
-    //    @Autowired
-//    private CodeNodeRepository cnRe;
     private lxTool lxtool = new lxTool();
 
     @Autowired
     dataSourceServiceImpl dsService;
-
 
 
     /**
@@ -58,6 +56,7 @@ public class  youdaoTool {
                 break;
             }
         }
+        if(res.equals(""))res = "['数据元'无该解释]";
         return res;
     }
 
@@ -68,9 +67,10 @@ public class  youdaoTool {
      * @Return
      * @Description: 将查找的信息组成有道划词的显示格式
      */
-    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList) {
+    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
-            System.out.println("查询字段为空");
+//            System.out.println("查询字段为空");
+            lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
             return getUnkown(queryKey);
         }
         //根据传递的类名nodeType 实例化List<XXX>
@@ -81,21 +81,21 @@ public class  youdaoTool {
         List<DataSourceEntity> dataSourceList = dsService.getDataSource(typeCnName);
 
         if (nodeList.size() == 0) {
-            System.out.println("查询不到数据");
+//            System.out.println("查询不到数据");
+            lxtool.soutLog("结果", queryKey, "数据库没有找到划词的节点或关系");
             return getUnkown(queryKey);
         }
 
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
         String res = "";
-        res += "<style>span{display:-moz-inline-box;display:inline-block;}.infotitle{text-align:left;width:70px;max-width:70px;text-align:right;}.infotext{text-align:left;font-weight:bold;}</style>";
-
+//        res += "<style>span{display:-moz-inline-box;display:inline-block;}.infotitle{text-align:left;width:70px;max-width:70px;text-align:right;}.infotext{text-align:left;font-weight:bold;}</style>";
+        res += lxtool.getWebCode("<sec-style>");
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
                 res += "";
                 BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
-                res += "<a href='javascript:history.back(-1);' style='font-size:15px;'>返回</a> <br/> ";
                 res += "<pre>";
                 //遍历节点的标签
                 res += "<span class='infotitle'>来源：</span><span class='infotext'>";
@@ -104,9 +104,8 @@ public class  youdaoTool {
                 }
                 res += "</span><br/>";
 
-                res +="<span class='infotitle'>"+ getCnByNm(dataSourceList.get(0),"Src")+"：</span><span class='infotext'>" + tempb.getSrc() + " </span><br/><span class='infotitle'>"+getCnByNm(dataSourceList.get(0),"Ver")+"：</span><span class='infotext'>" + tempb.getVer()+"</span>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Src") + "：</span><span class='infotext'>" + tempb.getSrc() + " </span><br/><span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Ver") + "：</span><span class='infotext'>" + tempb.getVer() + "</span>";
                 res += "" +
-//                        "<p style='color:gray;text-align:center'>代码</p>" +
                         "<hr/>";
                 //遍历代码（Cd、Cmnt）
                 int jmax = tempb.getCd().size();
@@ -121,11 +120,11 @@ public class  youdaoTool {
             }
 //            处理基本词类词结点
         } else if (nodeType == "BasicAndClassWordEntity") {
-            res += "<a href='javascript:history.back(-1);' style='text-decoration:underline;font-size:15px;'>关闭详细</a><br/>  ";
+            res += "<pre>";
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
-                BaseNodeEntity tempb = null;
-                if (nodeList.iterator().hasNext()) tempb = (BaseNodeEntity) nodeList.get(i);
+                BasicAndClassWordEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (BasicAndClassWordEntity) nodeList.get(i);
                 //遍历节点的标签
                 res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
 //                遍历标签名称
@@ -135,9 +134,26 @@ public class  youdaoTool {
                 }
 //                获取Nm属性的中文名称与Nm值
                 res += "</span><br/><span class='infotitle'>";
-                res += getCnByNm(dataSourceList.get(0),"Nm")+"：</span><span class='infotext'>" + tempb.getNm() + "</span><br/>";
+                res += getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br/><span class='infotitle'>" +
+                        getCnByNm(dataSourceList.get(0),"Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
 
             }
+            res += "</pre>";
+        }
+        //如果是二级页面，需要返回html格式，而非xml格式。
+        if ("true".equals(isNewPage)) {
+//            String prefix = "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no\" /><meta name=\"format-detection\" content=\"telephone=no\"><title>huaci</title><link rel=\"stylesheet\" type=\"text/css\" href=\"./iconfont.css\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"./huaci.css\" /><style>html{font-family:tahoma,Arial,\"Microsoft YaHei\" !important}</style></head><body><div id=\"doc\"><div id=\"main\">";
+//            String after = "</div>\n" +
+//                    "    </div>\n" +
+//                    "    <script src=\"./weblibs.js\">\n" +
+//                    "    </script> \n" +
+//                    "    <script src=\"./huaci.js\"></script>\n" +
+//                    "</body>\n" +
+//                    "\n" +
+//                    "</html>";
+            String prefix = lxtool.getWebCode("<newHtml-pre>");
+            String after = lxtool.getWebCode("<newHtml-after>");
+            return prefix + res + after;
         }
 
         customTranslationSb.append(getTranslation("", res));
