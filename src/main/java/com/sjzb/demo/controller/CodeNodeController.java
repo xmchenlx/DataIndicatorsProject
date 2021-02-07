@@ -2,10 +2,7 @@ package com.sjzb.demo.controller;
 
 import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.BaseNodeEntity;
-import com.sjzb.demo.service.BasicClassNodeServiceImpl;
-import com.sjzb.demo.service.CodeNodeServiceImpl;
-import com.sjzb.demo.service.StandardDataNodeServiceImpl;
-import com.sjzb.demo.service.youdaoTool;
+import com.sjzb.demo.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +33,13 @@ public class CodeNodeController {
     @Autowired
     StandardDataNodeServiceImpl standardDataService;
 
+    @Autowired
+    ReportNodeServiceImpl reportService;
+    @Autowired
+    DataModelOfIBMNodeServiceImpl ibmModelService;
+    @Autowired
+    IndicatorsNodeServiceImpl indicatorService;
+
 
     lxTool lxtool = new lxTool();
 
@@ -56,21 +60,20 @@ public class CodeNodeController {
         String isNewPage = request.getParameter("ist");         //提取是否为新开标签布尔
         String secQueryKey = request.getParameter("sqk");       //获取第二查询关键词
         if (queryKey == null) {
-            lxtool.soutLog("查询请求", queryKey, "查询请求的字段为空，终止查询。");
+            lxtool.soutLog("查询", queryKey, "查询请求的字段为空，终止查询。");
             return;
         }
         if (queryKey.length() == 0) return;
-//        System.out.println("查询字段：" + queryKey);
-//        System.out.println("是否新页面" + isNewPage);
         lxtool.soutLog("查询", queryKey, (secQueryKey == null ? null : "该请求为二级查询（有道结果单击查询）"));
         String translate = "";
         String dataString = "<div style='width:100%;'>";
+        String findGuide = "<h5>查询向导</h5><p style='font-size:10px;'>*单击标题快速跳转到该类查询结果。</p>";//查询向导
         String a = lxtool.getWebCode("<list-style>");
         int count = 0;//查询数量
 
         //过滤不小心触碰的请求
         if (queryKey.equals("Yodao dict Retest") || queryKey.length() == 0 || queryKey == "Yodao dict Retest" || queryKey == "" || queryKey == null) {
-            lxtool.soutLog("查询请求", queryKey, "查询请求的字段为无效关键字（非划词），终止查询。");
+            lxtool.soutLog("查询", queryKey, "查询请求的字段为无效关键字（非划词），终止查询。");
             return;
         }
 
@@ -87,10 +90,11 @@ public class CodeNodeController {
             translate = ydtool.getUnkown(queryKey);
         } else {
             //查询结果只有1条时，直接呈现详细结果
-            if (searchBriefRes.size() == 1) {
+            Map<String, Object> tempMap = new HashMap<>();
+            tempMap = (Map<String, Object>) searchBriefRes.get(0);
+            if (searchBriefRes.size() == 1 && (int) tempMap.get("len") < 2) {
                 count++;
-                Map<String, Object> tempMap = new HashMap<>();
-                tempMap = (Map<String, Object>) searchBriefRes.get(0);
+
 
                 translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"), isNewPage);
                 translate = translate;
@@ -106,17 +110,19 @@ public class CodeNodeController {
                     int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
                     String ifMaxOver50Str = (maxNum == 50 ? "的前50项" : "");
                     dataString += "<h5 style='color:black;'>在 " + nodeTag + " 找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
-
+                    findGuide += "<a class='listText' href='#" + nodeTag + "'>" + nodeTag + "</a><br>";
                     for (int i = 0; i < maxNum; i++) {
                         BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
                         String nodeName = nodeData.getNm();
                         count++;
                         //target='_blank'
-                        dataString += "<p  class='listText'><a alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + lxtool.getLocalHost() + ":6868?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
+                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + lxtool.getLocalHost() + ":6868?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
                     }
                     dataString += "<br/>";
 
                 }
+                if (count > 50)
+                    dataString = findGuide + "<hr><br>" + dataString;
                 translate = ydtool.translationList(dataString, count, a);
 
             }
@@ -173,11 +179,29 @@ public class CodeNodeController {
             res.put(index++, tempQueryNodeList);
         }
 
+        //查找【指标节点】
+        tempQueryNodeList = indicatorService.selectIndicatorsLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+
 //        //查找【基础数据标准节点】
 //        tempQueryNodeList = standardDataService.selectDataStandardNodeInfoByNmLike(qk);
 //        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
 //            res.put(index++, tempQueryNodeList);
 //        }
+
+        //查找【报表节点】
+        tempQueryNodeList = reportService.selectReportNodeInfoByNmLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+
+        //查找【IBM模型节点】
+        tempQueryNodeList = ibmModelService.selectIBMModelByNmLike(qk);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
 
         return res;
     }
@@ -211,42 +235,24 @@ public class CodeNodeController {
 //        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
 //            res.put(index++, tempQueryNodeList);
 //        }
+        //查找【指标节点】
+        tempQueryNodeList = indicatorService.selectIndicators(qk, null);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+        //查找【报表节点】
+        tempQueryNodeList = reportService.selectReportNodeInfoByNm(qk, null);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
+
+        //查找【IBM模型节点】
+        tempQueryNodeList = ibmModelService.selectIBMModelByNm(qk, null);
+        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+            res.put(index++, tempQueryNodeList);
+        }
 
         return res;
     }
-
-
-//    /**
-//     * @Author: chenlx
-//     * @Date: 2021-01-25 16:54:03
-//     * @Params: null
-//     * @Return
-//     * @Description: 往所有实体节点寻找完整的信息
-//     */
-//    public Map<String, Object> searchFullDataInVarietyOfClass(String qk) {
-//        Map<String, Object> res = new HashMap<>();
-//        Map<String, Object> tempQueryNodeList;
-//        //查询代码节点是否存在数据（Code Node）
-//        tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
-//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-//            res.put("nodeName", "CodeNode");
-//            res.put("data", tempQueryNodeList);
-//            return res;
-//        }
-//        //查询【基本词类词】节点是否存在数据（Basic And Class Words Node）
-//        tempQueryNodeList = basicClassService.selectBCWInfoByNm(qk);
-//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-//            res.put("nodeName", "BasicAndClassNode");
-//            res.put("data", tempQueryNodeList);
-//            return res;
-//        }
-//
-//
-//        //已知类型节点搜寻完未找到时返回相关信息
-//        res.put("nodeName", "_NotFound_");
-//        res.put("data", null);
-//        return res;
-//    }
-
 
 }

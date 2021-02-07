@@ -1,9 +1,8 @@
 package com.sjzb.demo.model;
 
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
+
 import java.util.List;
 
 /**
@@ -14,8 +13,8 @@ import java.util.List;
  */
 @Node(value = "代码")
 public class CodeNodeEntity extends BaseNodeEntity {
-    @Id
-    @GeneratedValue
+//    @Id
+//    @GeneratedValue
     @Property(name = "Nm")
     private String nm;
 

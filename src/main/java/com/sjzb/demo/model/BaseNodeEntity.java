@@ -1,9 +1,13 @@
 package com.sjzb.demo.model;
 
-import org.neo4j.ogm.annotation.GraphId;
+import org.neo4j.ogm.annotation.GeneratedValue;
 import org.neo4j.ogm.annotation.Property;
-//import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+
 import java.util.List;
+
+//import org.springframework.data.neo4j.core.schema.Property;
 
 /**
  * @ProgramName: demo
@@ -11,38 +15,56 @@ import java.util.List;
  * @Date: 2021-01-15 16:37:05
  * @Description: basicNode
  */
+@Node
 public class BaseNodeEntity {
 
-    @GraphId
-    private Long id;
+    //    @GraphId
+    @Id
+    @GeneratedValue
+    private String id;
 
     @Property(name = "Nm")
-    protected String nm;
+    private String nm;
 
 
     @Property(name = "Cd")
-    protected List<String> cd;
+    private List<String> basecd;
 
     @Property(name = "Cmnt")
-    protected List<String> cmnt;
+    private List<String> basecmnt;
 
     @Property(name = "Ver")
-    protected String ver;
+    private String basever;
 
     @Property(name = "Src")
-    protected String src;
+    private String basesrc;
 
 
-    public BaseNodeEntity(){}
+    public BaseNodeEntity() {
+    }
 
 
+    public BaseNodeEntity(String nm) {
+        this.nm = nm;
+    }
 
     public BaseNodeEntity(String nm, List<String> cd, List<String> cmnt, String ver, String src) {
         this.nm = nm;
-        this.cd = cd;
-        this.src=src;
-        this.cmnt = cmnt;
-        this.ver = ver;
+        this.basecd = cd;
+        this.basesrc = src;
+        this.basecmnt = cmnt;
+        this.basever = ver;
+    }
+
+    public BaseNodeEntity(String nm, String ver, String src) {
+        this.nm = nm;
+        this.basever = ver;
+        this.basesrc = src;
+    }
+
+    public BaseNodeEntity(String nm, String basesrc) {
+        this.nm = nm;
+        this.basesrc = basesrc;
     }
 
     public String getNm() {
@@ -54,34 +76,35 @@ public class BaseNodeEntity {
     }
 
     public List<String> getCd() {
-        return cd;
+        return basecd;
     }
 
     public void setCd(List<String> cd) {
-        this.cd = cd;
+        this.basecd = cd;
     }
 
     public List<String> getCmnt() {
-        return cmnt;
+        return basecmnt;
     }
 
     public void setCmnt(List<String> cmnt) {
-        this.cmnt = cmnt;
+        this.basecmnt = cmnt;
     }
 
     public String getVer() {
-        return ver;
+        return basever;
     }
 
     public void setVer(String ver) {
-        this.ver = ver;
+        this.basever = ver;
     }
 
+
     public String getSrc() {
-        return src;
+        return basesrc;
     }
 
     public void setSrc(String src) {
-        this.src = src;
+        this.basesrc = src;
     }
 }

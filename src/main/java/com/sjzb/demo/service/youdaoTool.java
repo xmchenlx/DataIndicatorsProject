@@ -1,9 +1,7 @@
 package com.sjzb.demo.service;
 
 import com.sjzb.demo.Result.lxTool;
-import com.sjzb.demo.model.BaseNodeEntity;
-import com.sjzb.demo.model.BasicAndClassWordEntity;
-import com.sjzb.demo.model.DataSourceEntity;
+import com.sjzb.demo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,13 +48,14 @@ public class youdaoTool {
 
     public String getCnByNm(DataSourceEntity dse, String nm) {
         String res = "";
+        if (dse.getNm() == null) return nm;
         for (int i = 0; i < dse.getAttr().size(); i++) {
             if (dse.getAttr().get(i).equals(nm)) {
                 res = dse.getCn().get(i);
                 break;
             }
         }
-        if(res.equals(""))res = "['数据元'无该解释]";
+        if (res.equals("")) res = nm;
         return res;
     }
 
@@ -90,6 +89,8 @@ public class youdaoTool {
         String res = "";
 //        res += "<style>span{display:-moz-inline-box;display:inline-block;}.infotitle{text-align:left;width:70px;max-width:70px;text-align:right;}.infotext{text-align:left;font-weight:bold;}</style>";
         res += lxtool.getWebCode("<sec-style>");
+        res += lxtool.getWebCode("<list-style>");
+
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
             for (int i = 0; i < nodeList.size(); i++) {
@@ -98,13 +99,16 @@ public class youdaoTool {
                 BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
                 res += "<pre>";
                 //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
                 res += "<span class='infotitle'>来源：</span><span class='infotext'>";
                 for (int x = 0; x < nodeTagList.size(); x++) {
                     res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
                 }
                 res += "</span><br/>";
 
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Src") + "：</span><span class='infotext'>" + tempb.getSrc() + " </span><br/><span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Ver") + "：</span><span class='infotext'>" + tempb.getVer() + "</span>";
+                res +=
+                        "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Src") + "：</span><span class='infotext'>" + tempb.getSrc() + "</span><br/>" +
+                                "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Ver") + "：</span>" + "<span class='infotext'>" + tempb.getVer() + "</span>";
                 res += "" +
                         "<hr/>";
                 //遍历代码（Cd、Cmnt）
@@ -126,6 +130,7 @@ public class youdaoTool {
                 BasicAndClassWordEntity tempb = null;
                 if (nodeList.iterator().hasNext()) tempb = (BasicAndClassWordEntity) nodeList.get(i);
                 //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
                 res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
 //                遍历标签名称
                 for (int x = 0; x < nodeTagList.size(); x++) {
@@ -133,36 +138,140 @@ public class youdaoTool {
                     res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
                 }
 //                获取Nm属性的中文名称与Nm值
-                res += "</span><br/><span class='infotitle'>";
-                res += getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br/><span class='infotitle'>" +
-                        getCnByNm(dataSourceList.get(0),"Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
+                res += "</span><br/>";
+                res += "<span class='infotitle'>" +
+                        getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
 
             }
+            res += lxtool.writeTempNote("数据元缺失");
+
+            res += "</pre>";
+        } else if (nodeType == "ReportEntity") {
+            res += "<pre>";
+            for (int i = 0; i < nodeList.size(); i++) {
+                //LIKE模糊查询的结点个数遍历
+                ReportEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (ReportEntity) nodeList.get(i);
+                //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
+                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                遍历标签名称
+                for (int x = 0; x < nodeTagList.size(); x++) {
+                    if (x != 0) res += "、";
+                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                }
+
+//                获取Nm属性的中文名称与Nm值
+                res += "</span><br/><span class='infotitle'>";
+                res +=
+                        getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + (tempb.getCl() == null ? "/" : tempb.getCl()) + "</span><br/>";
+
+            }
+            res += lxtool.writeTempNote("数据元缺失");
+            res += "</pre>";
+        } else if (nodeType == "DataModelOfIBMNodeEntity") {
+            res += "<pre>";
+            for (int i = 0; i < nodeList.size(); i++) {
+                //LIKE模糊查询的结点个数遍历
+                DataModelOfIBMNodeEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (DataModelOfIBMNodeEntity) nodeList.get(i);
+                //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
+                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                遍历标签名称
+                for (int x = 0; x < nodeTagList.size(); x++) {
+                    if (x != 0) res += "、";
+                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                }
+
+//                获取Nm属性的中文名称与Nm值
+                res += "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cd") + "：</span><span class='infotext'>" + (tempb.getMycd() == null ? "/" : tempb.getCd()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cmnt") + "：</span><span class='infotext'>" + (tempb.getMycmnt() == null ? "/" : tempb.getCmnt()) + "</span><br/>";
+
+            }
+        } else if (nodeType == "IndicatorsNodeEntity") {
+            res += "<pre>";
+            for (int i = 0; i < nodeList.size(); i++) {
+                //LIKE模糊查询的结点个数遍历
+                IndicatorsNodeEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (IndicatorsNodeEntity) nodeList.get(i);
+                //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
+                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                遍历标签名称
+                for (int x = 0; x < nodeTagList.size(); x++) {
+                    if (x != 0) res += "、";
+                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                }
+
+//                获取Nm属性的中文名称与Nm值
+                res += "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Clbr") + "：</span><span class='infotext'>" + (tempb.getClbr() == null ? "/" : tempb.getClbr()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Attr") + "：</span><span class='infotext'>" + (tempb.getAttr() == null ? "/" : tempb.getAttr()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cyc") + "：</span><span class='infotext'>" + (tempb.getCyc() == null ? "/" : tempb.getCyc()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Def") + "：</span><span class='infotext'>" + (tempb.getDef() == null ? "/" : tempb.getDef()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Fmt") + "：</span><span class='infotext'>" + (tempb.getFmt() == null ? "/" : tempb.getFmt()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo())? "/" : tempb.getNo()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Unt") + "：</span><span class='infotext'>" + (tempb.getUnt() == null ? "/" : tempb.getUnt()) + "</span><br/>";
+
+            }
+        } else {
+            res += "<pre>";
+            for (int i = 0; i < nodeList.size(); i++) {
+                //LIKE模糊查询的结点个数遍历
+                BaseNodeEntity tempb = null;
+                if (nodeList.iterator().hasNext()) tempb = (BaseNodeEntity) nodeList.get(i);
+                //遍历节点的标签
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
+                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                遍历标签名称
+                for (int x = 0; x < nodeTagList.size(); x++) {
+                    if (x != 0) res += "、";
+                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                }
+//                获取Nm属性的中文名称与Nm值
+                res += "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cd") + "：</span><span class='infotext'>" + (tempb.getCd() == null ? "/" : tempb.getCd()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cmnt") + "：</span><span class='infotext'>" + (tempb.getCmnt() == null ? "/" : tempb.getCmnt()) + "</span><br/>";
+
+            }
+            res += lxtool.writeTempNote("通用展示");
             res += "</pre>";
         }
+
         //如果是二级页面，需要返回html格式，而非xml格式。
-        if ("true".equals(isNewPage)) {
-//            String prefix = "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no\" /><meta name=\"format-detection\" content=\"telephone=no\"><title>huaci</title><link rel=\"stylesheet\" type=\"text/css\" href=\"./iconfont.css\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"./huaci.css\" /><style>html{font-family:tahoma,Arial,\"Microsoft YaHei\" !important}</style></head><body><div id=\"doc\"><div id=\"main\">";
-//            String after = "</div>\n" +
-//                    "    </div>\n" +
-//                    "    <script src=\"./weblibs.js\">\n" +
-//                    "    </script> \n" +
-//                    "    <script src=\"./huaci.js\"></script>\n" +
-//                    "</body>\n" +
-//                    "\n" +
-//                    "</html>";
-            String prefix = lxtool.getWebCode("<newHtml-pre>");
+        if ("true".
+
+                equals(isNewPage)) {
+            String prefix = lxtool.getWebCode("<newHtml-pre>").replace("${replaceTitle}", queryKey + " -查询结果 - 数据指标项目");
             String after = lxtool.getWebCode("<newHtml-after>");
             return prefix + res + after;
         }
 
-        customTranslationSb.append(getTranslation("", res));
+        customTranslationSb.append(
+
+                getTranslation("", res));
         customTranslationSb.append("</custom-translation>");
 
         //3.组装返回xml
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
-        youdaodictSb.append("<return-phrase><![CDATA[").append(((BaseNodeEntity) nodeList.iterator().next()).getNm()).append("]]></return-phrase>")
-                .append(customTranslationSb).append("</yodaodict>");
+        youdaodictSb.append("<return-phrase><![CDATA[").
+
+                append(((BaseNodeEntity) nodeList.
+
+                        iterator().
+
+                        next()).
+
+                        getNm()).
+
+                append("]]></return-phrase>")
+                .
+
+                        append(customTranslationSb).
+
+                append("</yodaodict>");
         return youdaodictSb.toString();
 
     }

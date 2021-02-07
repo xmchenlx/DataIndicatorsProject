@@ -27,7 +27,11 @@ public class dataSourceServiceImpl {
      * @Description: 根据数据元的名称返回数据元的格式
      */
     public List<DataSourceEntity> getDataSource(String nm) {
-        return dataSourceRe.findDataSourceEntityByNm(nm);
+        List<DataSourceEntity> ls = dataSourceRe.findDataSourceEntityByNm(nm);
+        if(ls.size() == 0){
+            ls.add(new DataSourceEntity());
+        }
+        return ls;
     }
 
 }

@@ -61,6 +61,8 @@ public class lxTool {
 //            return "基本词类词";
         else if (name == "")
             return "标准别名";
+        else if (name == "ReportEntity")
+            return "报表/报文";
         else
             return "未知";
     }
@@ -75,13 +77,13 @@ public class lxTool {
     public String getWebCode(String key) {
         String res = "";
         if (key == "<sec-style>") {
-            res = "<style>html{width:100%;}span{display:-moz-inline-box;display:inline-block}.infotitle{text-align:left;width:5rem;max-width:5rem;text-align:right}.infotext{text-align:left;font-weight:bold}pre{font-family:'微软雅黑';max-width:20rem;border:3px solid lightcoral;padding:1rem;margin:0 auto}</style>";
+            res = "<style>span{display:-moz-inline-box;display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;}.infotitle{text-align:left;width:5rem;max-width:5rem;text-align:right}.infotext{word-wrap:break-word;max-width:80%;text-align:left;font-weight:bold}pre{font-family:'微软雅黑';max-width:20rem;border:3px solid lightcoral;padding:1rem;margin:0 auto}</style>";
         }
         if (key == "<list-style>") {
-            res = "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} .listText:hover{color:coral;font-weight:bold;cursor:pointer} .listText:active{color:darksalmon;}</style>";
+            res = "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} span{display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;} .listText:hover{color:coral;font-weight:bold;cursor:pointer} .listText:active{color:darksalmon;}</style>";
         }
         if (key == "<newHtml-pre>") {
-            res = "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no\" /><meta name=\"format-detection\" content=\"telephone=no\"><title>huaci</title><link rel=\"stylesheet\" type=\"text/css\" href=\"./iconfont.css\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"./huaci.css\" /></head><body><div id=\"doc\"><div id=\"main\">";
+            res = "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no\" /><meta name=\"format-detection\" content=\"telephone=no\"><title>${replaceTitle}</title><link rel=\"stylesheet\" type=\"text/css\" href=\"./iconfont.css\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"./huaci.css\" /></head><body><div id=\"doc\"><div id=\"main\">";
         }
         if (key == "<newHtml-after>") {
             res = "</div></div><script src=\"./weblibs.js\"></script><script src=\"./huaci.js\"></script></body></html>";
@@ -120,8 +122,18 @@ public class lxTool {
         int min = cla.get(Calendar.MINUTE);
         int sec = cla.get(Calendar.SECOND);
         String _now = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
-        String res = "\n\n于" + _now + "收到 " + type + "，关键词：" + key;
+        String res = "\n\n于" + _now + " 收到【" + type + "】请求，关键词：" + key;
         if (note != null) res += "，备注：" + note;
         System.out.println(res);
+    }
+
+    public String writeTempNote(String note) {
+        String detailNote = "";
+        if (note == "数据元缺失") {
+            detailNote = "该节点隶属的数据元缺少部分或全部的定义，程序已自动写回原英文属性名称。";
+        }
+        else if(note == "通用展示")
+            detailNote = "该节点还没设置属性展示，已使用通用字段展示";
+        return "<p class='listText' style='color:white;white-space:normal;word-break:break-all;background-color:darkred;font-weight:bold;font-size:1rem'>#临时注释#" + detailNote + "</p>";
     }
 }

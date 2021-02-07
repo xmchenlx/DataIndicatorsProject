@@ -17,7 +17,7 @@ public interface BasicClassWordsNodeRepository extends Neo4jRepository<BasicAndC
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 
-    @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm = $Nm return b")
+    @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm = $Nm return a")
     List<BasicAndClassWordEntity> findBasicAndClassWordEntitiesByNm(@Param("Nm") String nm);
 
     @Query("MATCH (a:`基本词类词`)-[:abbr]-(b:`基本词类词`) WHERE a.Nm = $Nm and b.Nm =~('.*'+$BNm+'.*')  return b")
