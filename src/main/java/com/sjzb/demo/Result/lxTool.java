@@ -73,11 +73,20 @@ public class lxTool {
         return res;
     }
 
+    public String getScriptCdnUrl(String key){
+        if(key.equals("jquery")){
+            return "https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js";
+        }else if(key.equals("handlebars")){
+            return "https://cdn.bootcdn.net/ajax/libs/handlebars.js/4.7.6/handlebars.min.js";
+        }else{
+            return "";
+        }
+    }
 
     public String getWebCode(String key) {
         String res = "";
         if (key == "<sec-style>") {
-            res = "<style>span{display:-moz-inline-box;display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;}.infotitle{text-align:left;width:5rem;max-width:5rem;text-align:right}.infotext{word-wrap:break-word;max-width:80%;text-align:left;font-weight:bold}pre{font-family:'微软雅黑';max-width:20rem;border:3px solid lightcoral;padding:1rem;margin:0 auto}</style>";
+            res = "<style>#title{text-align:center;background-color:lightcoral;margin:-1.2rem -1.1rem 0 -1.1rem;white-space:normal;color:white;padding:0.5rem 0;word-break:break-all;font-size:1.2rem;}span{display:-moz-inline-box;display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;font-weight:bold}.infotitle{vertical-align:top;text-align:left;width:5rem;max-width:5rem;text-align:right}.infotext{font-weight:normal;word-wrap:break-word;max-width:80%;text-align:left;}pre{font-family:'微软雅黑';max-width:20rem;border:3px solid lightcoral;padding:1rem;margin:0 auto}</style>";
         }
         if (key == "<list-style>") {
             res = "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} span{display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;} .listText:hover{color:coral;font-weight:bold;cursor:pointer} .listText:active{color:darksalmon;}</style>";
@@ -88,7 +97,17 @@ public class lxTool {
         if (key == "<newHtml-after>") {
             res = "</div></div><script src=\"./weblibs.js\"></script><script src=\"./huaci.js\"></script></body></html>";
         }
+        if(key.equals("<html-handlebars>")){
+            res="<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>${title}</title>     ${style}</head><body><div id=\"container\"></div> ${loadScript}<script type=\"text/x-handlebars-template\" id=\"template-user\"><pre><h1 id=\"title\">{{res.nm}}</h1>{{{showBaseProperty res datasource}}} <hr>            {{{mixCdCmnt res.cd res.cmnt}}}</pre></script><script>        Handlebars.registerHelper(\"mixCdCmnt\", function ($cd, $cmnt) {            let $res = '';            for (let $i = 0; $i< $cd.length; $i++) {                $res += '<br><strong>' + $cd[$i] + '</strong>\\t' + $cmnt[$i]            }            return $res;        });Handlebars.registerHelper(\"showBaseProperty\",function($res,$datasource){            let $r= '';            for(let obj in $res){  if(obj=='cd') continue;            $r+= '<span class=\"infotitle\">'+$datasource[obj] +'：</span><span class=\"infotext\">'+$res[obj]+'</span><br>';            }            return $r;        });        var jsoninfo = ${jsoninfo}   ;            var $container = $('#container');        var source = $('#template-user').html();        var template = Handlebars.compile(source);       var html2 = template(jsoninfo);       $container.html(html2);</script></body></html>";
+        }
+//        if(key.equals("<html-handlebars-after>"));
 
+
+        return res;
+    }
+
+    public String generateHandlebarsJson(){
+        String res="";
 
         return res;
     }

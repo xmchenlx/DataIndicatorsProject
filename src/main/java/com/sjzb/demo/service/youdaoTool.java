@@ -1,10 +1,12 @@
 package com.sjzb.demo.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -60,6 +62,181 @@ public class youdaoTool {
     }
 
     /**
+     *
+     * @Author: chenlx
+     * @Date: 2021-02-08 15:35:20
+     * @Params: null
+     * @Return
+     * @Description: 查询结果在新页面呈现，使用handlebars进行数据展示。
+     */
+    public String translationForHTML(String queryKey, List<?> nodeList, String nodeType, List<String> nodeTagList,List<DataSourceEntity> dataSourceList){
+        String html="";
+        JSONObject jsonResult = new JSONObject();
+        JSONObject jsonRes = new JSONObject();
+        JSONObject jsonDataSource = new JSONObject();
+        if (nodeType == "CodeNodeEntity") {
+//            for (int i = 0; i < nodeList.size(); i++) {
+                //LIKE模糊查询的结点个数遍历
+                BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
+                //遍历节点的标签
+                jsonRes.put("nm",tempb.getNm());
+                jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
+                String tempSrc="";
+                for (int x = 0; x < nodeTagList.size(); x++) {
+                    tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                }
+                jsonRes.put("src",tempb.getSrc());
+                jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
+                jsonRes.put("label",tempSrc);
+                jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+                jsonRes.put("ver",tempb.getVer());
+                jsonDataSource.put("ver",getCnByNm(dataSourceList.get(0), "Ver"));
+                jsonRes.put("cd",tempb.getCd());
+                jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
+                jsonRes.put("cmnt",tempb.getCmnt());
+                jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+                jsonResult.put("res",jsonRes);
+                jsonResult.put("datasource",jsonDataSource);
+//            }
+//            处理基本词类词结点
+        }else if (nodeType == "BasicAndClassWordEntity" ) {
+            BasicAndClassWordEntity tempb = (BasicAndClassWordEntity) nodeList.iterator().next();
+            //遍历节点的标签
+            jsonRes.put("nm",tempb.getNm());
+            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc="";
+            for (int x = 0; x < nodeTagList.size(); x++) {
+                tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+            }
+            jsonRes.put("src",tempb.getSrc());
+            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label",tempSrc);
+            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("cl",tempb.getCl());
+            jsonDataSource.put("cl",getCnByNm(dataSourceList.get(0), "Cl"));
+
+            List<String> tempCd = new ArrayList<>();
+            jsonRes.put("cd",tempCd);
+            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
+            jsonRes.put("cmnt",tempb.getCmnt());
+            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+
+            jsonResult.put("res",jsonRes);
+            jsonResult.put("datasource",jsonDataSource);
+
+
+        } else if (nodeType == "ReportEntity") {
+            ReportEntity tempb = (ReportEntity) nodeList.iterator().next();
+            //遍历节点的标签
+            jsonRes.put("nm",tempb.getNm());
+            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc="";
+            for (int x = 0; x < nodeTagList.size(); x++) {
+                tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+            }
+            jsonRes.put("src",tempb.getSrc());
+            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label",tempSrc);
+            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("cl",tempb.getCl());
+            jsonDataSource.put("cl",getCnByNm(dataSourceList.get(0), "Cl"));
+
+            List<String> tempCd = new ArrayList<>();
+            jsonRes.put("cd",tempCd);
+            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
+            jsonRes.put("cmnt",tempb.getCmnt());
+            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+
+            jsonResult.put("res",jsonRes);
+            jsonResult.put("datasource",jsonDataSource);
+        }else if (nodeType == "DataModelOfIBMNodeEntity") {
+            DataModelOfIBMNodeEntity tempb = (DataModelOfIBMNodeEntity) nodeList.iterator().next();
+            //遍历节点的标签
+            jsonRes.put("nm",tempb.getNm());
+            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc="";
+            for (int x = 0; x < nodeTagList.size(); x++) {
+                tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+            }
+            jsonRes.put("src",tempb.getSrc());
+            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label",tempSrc);
+            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+
+            List<String> tempCd = new ArrayList<>();
+            jsonRes.put("cd",tempCd);
+            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
+            jsonRes.put("cmnt",tempb.getCmnt());
+            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+
+            jsonResult.put("res",jsonRes);
+            jsonResult.put("datasource",jsonDataSource);
+        } else if (nodeType == "IndicatorsNodeEntity") {
+            IndicatorsNodeEntity tempb = (IndicatorsNodeEntity) nodeList.iterator().next();
+            //遍历节点的标签
+            jsonRes.put("nm",tempb.getNm());
+            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc="";
+            for (int x = 0; x < nodeTagList.size(); x++) {
+                tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+            }
+            jsonRes.put("src",validIsNull(tempb.getSrc()));
+            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label",tempSrc);
+            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+
+            jsonRes.put("unt",validIsNull(tempb.getUnt()));
+            jsonDataSource.put("unt",getCnByNm(dataSourceList.get(0),"Unt"));
+
+            jsonRes.put("no",validIsNull(tempb.getNo()));
+            jsonDataSource.put("no",getCnByNm(dataSourceList.get(0),"No"));
+
+            jsonRes.put("fmt",validIsNull(tempb.getFmt()));
+            jsonDataSource.put("fmt",getCnByNm(dataSourceList.get(0),"Fmt"));
+
+            jsonRes.put("def",validIsNull(tempb.getDef()));
+            jsonDataSource.put("def",getCnByNm(dataSourceList.get(0),"Def"));
+
+            jsonRes.put("cyc",validIsNull(tempb.getCyc()));
+            jsonDataSource.put("cyc",getCnByNm(dataSourceList.get(0),"Cyc"));
+
+            jsonRes.put("attr",validIsNull(tempb.getAttr()));
+            jsonDataSource.put("attr",getCnByNm(dataSourceList.get(0),"Attr"));
+
+            jsonRes.put("clbr",validIsNull(tempb.getClbr()));
+            jsonDataSource.put("clbr",getCnByNm(dataSourceList.get(0),"Clbr"));
+
+            List<String> tempCd = new ArrayList<>();
+            jsonRes.put("cd",tempCd);
+            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
+            jsonRes.put("cmnt",tempb.getCmnt());
+            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+
+            jsonResult.put("res",jsonRes);
+            jsonResult.put("datasource",jsonDataSource);
+        }
+
+
+        html = lxtool.getWebCode("<html-handlebars>");
+        html = html.replace("${title}", queryKey + " -查询结果 - 数据指标项目");
+        String loadscript = "<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>"
+                + "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>";
+
+
+        html = html.replace("${loadScript}", loadscript);
+        String style = lxtool.getWebCode("<sec-style>");
+        style +=lxtool.getWebCode("<list-style>");
+        html = html.replace("${style}", style);
+        html = html.replace("${jsoninfo}",jsonResult.toJSONString());
+        return html;
+    }
+
+    public String validIsNull(String s){
+        if(s == null || "".equals(s))
+            return "/";
+        return s;
+    }
+    /**
      * @Author: chenlx
      * @Date: 2021-01-20 15:38:01
      * @Params: null
@@ -68,7 +245,6 @@ public class youdaoTool {
      */
     public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
-//            System.out.println("查询字段为空");
             lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
             return getUnkown(queryKey);
         }
@@ -80,17 +256,18 @@ public class youdaoTool {
         List<DataSourceEntity> dataSourceList = dsService.getDataSource(typeCnName);
 
         if (nodeList.size() == 0) {
-//            System.out.println("查询不到数据");
             lxtool.soutLog("结果", queryKey, "数据库没有找到划词的节点或关系");
             return getUnkown(queryKey);
         }
 
+        if("true".equals(isNewPage)){
+            //如若为新开页面，则转发至专门处理html页面的函数进行页面处理。
+            String html = translationForHTML(queryKey,nodeList,nodeType,nodeTagList,dataSourceList);
+            return html;
+        }
+
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
         String res = "";
-//        res += "<style>span{display:-moz-inline-box;display:inline-block;}.infotitle{text-align:left;width:70px;max-width:70px;text-align:right;}.infotext{text-align:left;font-weight:bold;}</style>";
-        res += lxtool.getWebCode("<sec-style>");
-        res += lxtool.getWebCode("<list-style>");
-
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
             for (int i = 0; i < nodeList.size(); i++) {
@@ -212,7 +389,7 @@ public class youdaoTool {
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cyc") + "：</span><span class='infotext'>" + (tempb.getCyc() == null ? "/" : tempb.getCyc()) + "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Def") + "：</span><span class='infotext'>" + (tempb.getDef() == null ? "/" : tempb.getDef()) + "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Fmt") + "：</span><span class='infotext'>" + (tempb.getFmt() == null ? "/" : tempb.getFmt()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo())? "/" : tempb.getNo()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo()) ? "/" : tempb.getNo()) + "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Unt") + "：</span><span class='infotext'>" + (tempb.getUnt() == null ? "/" : tempb.getUnt()) + "</span><br/>";
 
             }
@@ -241,13 +418,13 @@ public class youdaoTool {
         }
 
         //如果是二级页面，需要返回html格式，而非xml格式。
-        if ("true".
-
-                equals(isNewPage)) {
-            String prefix = lxtool.getWebCode("<newHtml-pre>").replace("${replaceTitle}", queryKey + " -查询结果 - 数据指标项目");
-            String after = lxtool.getWebCode("<newHtml-after>");
-            return prefix + res + after;
-        }
+//        if ("true".
+//
+//                equals(isNewPage)) {
+//            String prefix = lxtool.getWebCode("<newHtml-pre>").replace("${replaceTitle}", queryKey + " -查询结果 - 数据指标项目");
+//            String after = lxtool.getWebCode("<newHtml-after>");
+//            return prefix + res + after;
+//        }
 
         customTranslationSb.append(
 
