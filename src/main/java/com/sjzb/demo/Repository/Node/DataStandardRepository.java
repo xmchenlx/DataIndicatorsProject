@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.StandardOfDataEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -14,7 +14,7 @@ import java.util.List;
  * @Return
  * @Description: 基础数据标准操作仓库层
  */
-public interface DataStandardRepository extends Neo4jRepository<StandardOfDataEntity, String> {
+public interface DataStandardRepository extends Neo4jRepository<StandardOfDataEntity, Long> {
 
 //    @Query("MATCH (n:`数据元`) where n.Nm = $Nm return n limit 1")
 //    List<DataSourceEntity> findDataSourceEntityByNm(@Param("Nm") String nm);

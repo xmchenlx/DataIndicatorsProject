@@ -96,7 +96,7 @@ public class CodeNodeController {
                 count++;
 
 
-                translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"), isNewPage);
+                translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"), isNewPage,(Map<Integer,Object>)tempMap.get("node_relation"));
                 translate = translate;
 
             } else {

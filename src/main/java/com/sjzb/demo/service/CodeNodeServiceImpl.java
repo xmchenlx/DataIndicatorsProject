@@ -1,6 +1,7 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.CodeNodeRepository;
+import com.sjzb.demo.Repository.Node.CodeNodeRepository;
+import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.CodeNodeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class CodeNodeServiceImpl {
     @Autowired
     private CodeNodeRepository cnRe;
 
+
     /**
      * @Author: chenlx
      * @Date: 2021-01-26 15:25:32
@@ -41,6 +43,8 @@ public class CodeNodeServiceImpl {
         Object tempTags = cnRe.findTagByNm(tempNodeList.get(0).getNm());
         List<String> nodeTagList = getListFromJson(tempTags.toString());
 
+
+
         res.put("node_data", tempNodeList);
         res.put("node_Nm", tempNodeList.iterator().next().getNm());
         res.put("node_tag", nodeTagList);
@@ -50,6 +54,7 @@ public class CodeNodeServiceImpl {
     }
 
     public Map<String, Object> selectCodeNodeListByNm(String querykey) {
+
         Map<String, Object> res = new HashMap<>();
         List<CodeNodeEntity> tempNodeList = cnRe.findCodeNodeEntityByNm(querykey);
         res.put("len", tempNodeList.size());
@@ -60,6 +65,8 @@ public class CodeNodeServiceImpl {
 //        List<String> nodeTagList = getListFromJson(tempTags.toString());
         List<String> nodeTagList = new ArrayList<>();
         nodeTagList.add("代码");
+        BaseNodeEntity a = tempNodeList.get(0);
+//        res.put("node_relation",relaList);
 
         res.put("node_data", tempNodeList);
         res.put("node_Nm", tempNodeList.iterator().next().getNm());

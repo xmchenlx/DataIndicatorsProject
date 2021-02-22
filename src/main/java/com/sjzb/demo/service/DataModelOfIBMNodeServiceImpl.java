@@ -1,6 +1,6 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.DataModelOfIBMNodeRepository;
+import com.sjzb.demo.Repository.Node.DataModelOfIBMNodeRepository;
 import com.sjzb.demo.model.DataModelOfIBMNodeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

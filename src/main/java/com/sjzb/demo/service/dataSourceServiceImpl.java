@@ -1,6 +1,6 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.dataSourceRepository;
+import com.sjzb.demo.Repository.Node.dataSourceRepository;
 import com.sjzb.demo.model.DataSourceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

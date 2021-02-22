@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ProgramName: demo_youdao
@@ -19,6 +21,7 @@ import java.util.List;
 public class youdaoTool {
 
     private lxTool lxtool = new lxTool();
+    private List<Long> validNodeIdList;
 
     @Autowired
     dataSourceServiceImpl dsService;
@@ -62,180 +65,256 @@ public class youdaoTool {
     }
 
     /**
-     *
      * @Author: chenlx
      * @Date: 2021-02-08 15:35:20
      * @Params: null
      * @Return
      * @Description: 查询结果在新页面呈现，使用handlebars进行数据展示。
      */
-    public String translationForHTML(String queryKey, List<?> nodeList, String nodeType, List<String> nodeTagList,List<DataSourceEntity> dataSourceList){
-        String html="";
+    public String translationForHTML(String queryKey, List<?> nodeList, String nodeType, List<String> nodeTagList, List<DataSourceEntity> dataSourceList, Map<Integer, Object> nodeRelation) {
+        String html = "";
         JSONObject jsonResult = new JSONObject();
         JSONObject jsonRes = new JSONObject();
         JSONObject jsonDataSource = new JSONObject();
+//        JSONObject jsonGraph = new JSONObject();
+        List<Object> jsonGraph = new ArrayList<>();
         if (nodeType == "CodeNodeEntity") {
 //            for (int i = 0; i < nodeList.size(); i++) {
-                //LIKE模糊查询的结点个数遍历
-                BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
-                //遍历节点的标签
-                jsonRes.put("nm",tempb.getNm());
-                jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
-                String tempSrc="";
-                for (int x = 0; x < nodeTagList.size(); x++) {
-                    tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
-                }
-                jsonRes.put("src",tempb.getSrc());
-                jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
-                jsonRes.put("label",tempSrc);
-                jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
-                jsonRes.put("ver",tempb.getVer());
-                jsonDataSource.put("ver",getCnByNm(dataSourceList.get(0), "Ver"));
-                jsonRes.put("cd",tempb.getCd());
-                jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
-                jsonRes.put("cmnt",tempb.getCmnt());
-                jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
-                jsonResult.put("res",jsonRes);
-                jsonResult.put("datasource",jsonDataSource);
-//            }
-//            处理基本词类词结点
-        }else if (nodeType == "BasicAndClassWordEntity" ) {
-            BasicAndClassWordEntity tempb = (BasicAndClassWordEntity) nodeList.iterator().next();
+            //LIKE模糊查询的结点个数遍历
+            BaseNodeEntity tempb = (BaseNodeEntity) nodeList.iterator().next();
             //遍历节点的标签
-            jsonRes.put("nm",tempb.getNm());
-            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
-            String tempSrc="";
+            jsonRes.put("nm", tempb.getNm());
+            jsonDataSource.put("nm", getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc = "";
             for (int x = 0; x < nodeTagList.size(); x++) {
                 tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
             }
-            jsonRes.put("src",tempb.getSrc());
-            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
-            jsonRes.put("label",tempSrc);
-            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
-            jsonRes.put("cl",tempb.getCl());
-            jsonDataSource.put("cl",getCnByNm(dataSourceList.get(0), "Cl"));
+            jsonRes.put("src", tempb.getSrc());
+            jsonDataSource.put("src", getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label", tempSrc);
+            jsonDataSource.put("label", getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("ver", tempb.getVer());
+            jsonDataSource.put("ver", getCnByNm(dataSourceList.get(0), "Ver"));
+            jsonRes.put("cd", tempb.getCd());
+            jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
+            jsonRes.put("cmnt", tempb.getCmnt());
+            jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
+            jsonResult.put("res", jsonRes);
+            jsonResult.put("datasource", jsonDataSource);
+//            }
+//            处理基本词类词结点
+        } else if (nodeType == "BasicAndClassWordEntity") {
+            BasicAndClassWordEntity tempb = (BasicAndClassWordEntity) nodeList.iterator().next();
+            //遍历节点的标签
+            jsonRes.put("nm", tempb.getNm());
+            jsonDataSource.put("nm", getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc = "";
+            for (int x = 0; x < nodeTagList.size(); x++) {
+                tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+            }
+            jsonRes.put("src", tempb.getSrc());
+            jsonDataSource.put("src", getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label", tempSrc);
+            jsonDataSource.put("label", getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("cl", tempb.getCl());
+            jsonDataSource.put("cl", getCnByNm(dataSourceList.get(0), "Cl"));
 
             List<String> tempCd = new ArrayList<>();
-            jsonRes.put("cd",tempCd);
-            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
-            jsonRes.put("cmnt",tempb.getCmnt());
-            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+            jsonRes.put("cd", tempCd);
+            jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
+            jsonRes.put("cmnt", tempb.getCmnt());
+            jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
 
-            jsonResult.put("res",jsonRes);
-            jsonResult.put("datasource",jsonDataSource);
-
+            jsonResult.put("res", jsonRes);
+            jsonResult.put("datasource", jsonDataSource);
 
         } else if (nodeType == "ReportEntity") {
             ReportEntity tempb = (ReportEntity) nodeList.iterator().next();
             //遍历节点的标签
-            jsonRes.put("nm",tempb.getNm());
-            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
-            String tempSrc="";
+            jsonRes.put("nm", tempb.getNm());
+            jsonDataSource.put("nm", getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc = "";
             for (int x = 0; x < nodeTagList.size(); x++) {
                 tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
             }
-            jsonRes.put("src",tempb.getSrc());
-            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
-            jsonRes.put("label",tempSrc);
-            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
-            jsonRes.put("cl",tempb.getCl());
-            jsonDataSource.put("cl",getCnByNm(dataSourceList.get(0), "Cl"));
+            jsonRes.put("src", tempb.getSrc());
+            jsonDataSource.put("src", getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label", tempSrc);
+            jsonDataSource.put("label", getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("cl", tempb.getCl());
+            jsonDataSource.put("cl", getCnByNm(dataSourceList.get(0), "Cl"));
 
             List<String> tempCd = new ArrayList<>();
-            jsonRes.put("cd",tempCd);
-            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
-            jsonRes.put("cmnt",tempb.getCmnt());
-            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+            jsonRes.put("cd", tempCd);
+            jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
+            jsonRes.put("cmnt", tempb.getCmnt());
+            jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
 
-            jsonResult.put("res",jsonRes);
-            jsonResult.put("datasource",jsonDataSource);
-        }else if (nodeType == "DataModelOfIBMNodeEntity") {
+            jsonResult.put("res", jsonRes);
+            jsonResult.put("datasource", jsonDataSource);
+        } else if (nodeType == "DataModelOfIBMNodeEntity") {
             DataModelOfIBMNodeEntity tempb = (DataModelOfIBMNodeEntity) nodeList.iterator().next();
             //遍历节点的标签
-            jsonRes.put("nm",tempb.getNm());
-            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
-            String tempSrc="";
+            jsonRes.put("nm", tempb.getNm());
+            jsonDataSource.put("nm", getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc = "";
             for (int x = 0; x < nodeTagList.size(); x++) {
                 tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
             }
-            jsonRes.put("src",tempb.getSrc());
-            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
-            jsonRes.put("label",tempSrc);
-            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("src", tempb.getSrc());
+            jsonDataSource.put("src", getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label", tempSrc);
+            jsonDataSource.put("label", getCnByNm(dataSourceList.get(0), "节点标签"));
 
             List<String> tempCd = new ArrayList<>();
-            jsonRes.put("cd",tempCd);
-            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
-            jsonRes.put("cmnt",tempb.getCmnt());
-            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+            jsonRes.put("cd", tempCd);
+            jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
+            jsonRes.put("cmnt", tempb.getCmnt());
+            jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
 
-            jsonResult.put("res",jsonRes);
-            jsonResult.put("datasource",jsonDataSource);
+            jsonResult.put("res", jsonRes);
+            jsonResult.put("datasource", jsonDataSource);
         } else if (nodeType == "IndicatorsNodeEntity") {
             IndicatorsNodeEntity tempb = (IndicatorsNodeEntity) nodeList.iterator().next();
             //遍历节点的标签
-            jsonRes.put("nm",tempb.getNm());
-            jsonDataSource.put("nm",getCnByNm(dataSourceList.get(0), "Nm"));
-            String tempSrc="";
+            jsonRes.put("nm", tempb.getNm());
+            jsonDataSource.put("nm", getCnByNm(dataSourceList.get(0), "Nm"));
+            String tempSrc = "";
             for (int x = 0; x < nodeTagList.size(); x++) {
                 tempSrc += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
             }
-            jsonRes.put("src",validIsNull(tempb.getSrc()));
-            jsonDataSource.put("src",getCnByNm(dataSourceList.get(0), "Src"));
-            jsonRes.put("label",tempSrc);
-            jsonDataSource.put("label",getCnByNm(dataSourceList.get(0), "节点标签"));
+            jsonRes.put("src", validIsNull(tempb.getSrc()));
+            jsonDataSource.put("src", getCnByNm(dataSourceList.get(0), "Src"));
+            jsonRes.put("label", tempSrc);
+            jsonDataSource.put("label", getCnByNm(dataSourceList.get(0), "节点标签"));
 
-            jsonRes.put("unt",validIsNull(tempb.getUnt()));
-            jsonDataSource.put("unt",getCnByNm(dataSourceList.get(0),"Unt"));
+            jsonRes.put("unt", validIsNull(tempb.getUnt()));
+            jsonDataSource.put("unt", getCnByNm(dataSourceList.get(0), "Unt"));
 
-            jsonRes.put("no",validIsNull(tempb.getNo()));
-            jsonDataSource.put("no",getCnByNm(dataSourceList.get(0),"No"));
+            jsonRes.put("no", validIsNull(tempb.getNo()));
+            jsonDataSource.put("no", getCnByNm(dataSourceList.get(0), "No"));
 
-            jsonRes.put("fmt",validIsNull(tempb.getFmt()));
-            jsonDataSource.put("fmt",getCnByNm(dataSourceList.get(0),"Fmt"));
+            jsonRes.put("fmt", validIsNull(tempb.getFmt()));
+            jsonDataSource.put("fmt", getCnByNm(dataSourceList.get(0), "Fmt"));
 
-            jsonRes.put("def",validIsNull(tempb.getDef()));
-            jsonDataSource.put("def",getCnByNm(dataSourceList.get(0),"Def"));
+            jsonRes.put("def", validIsNull(tempb.getDef()));
+            jsonDataSource.put("def", getCnByNm(dataSourceList.get(0), "Def"));
 
-            jsonRes.put("cyc",validIsNull(tempb.getCyc()));
-            jsonDataSource.put("cyc",getCnByNm(dataSourceList.get(0),"Cyc"));
+            jsonRes.put("cyc", validIsNull(tempb.getCyc()));
+            jsonDataSource.put("cyc", getCnByNm(dataSourceList.get(0), "Cyc"));
 
-            jsonRes.put("attr",validIsNull(tempb.getAttr()));
-            jsonDataSource.put("attr",getCnByNm(dataSourceList.get(0),"Attr"));
+            jsonRes.put("attr", validIsNull(tempb.getAttr()));
+            jsonDataSource.put("attr", getCnByNm(dataSourceList.get(0), "Attr"));
 
-            jsonRes.put("clbr",validIsNull(tempb.getClbr()));
-            jsonDataSource.put("clbr",getCnByNm(dataSourceList.get(0),"Clbr"));
+            jsonRes.put("clbr", validIsNull(tempb.getClbr()));
+            jsonDataSource.put("clbr", getCnByNm(dataSourceList.get(0), "Clbr"));
 
             List<String> tempCd = new ArrayList<>();
-            jsonRes.put("cd",tempCd);
-            jsonDataSource.put("cd",getCnByNm(dataSourceList.get(0),"Cd"));
-            jsonRes.put("cmnt",tempb.getCmnt());
-            jsonDataSource.put("cmnt",getCnByNm(dataSourceList.get(0),"Cmnt"));
+            jsonRes.put("cd", tempCd);
+            jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
+            jsonRes.put("cmnt", tempb.getCmnt());
+            jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
 
-            jsonResult.put("res",jsonRes);
-            jsonResult.put("datasource",jsonDataSource);
+            jsonResult.put("res", jsonRes);
+            jsonResult.put("datasource", jsonDataSource);
         }
 
 
         html = lxtool.getWebCode("<html-handlebars>");
         html = html.replace("${title}", queryKey + " -查询结果 - 数据指标项目");
         String loadscript = "<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>"
-                + "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>";
+                + "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>"
+                + lxtool.getScriptCdnUrl("script-echart")
+                + "";
 
 
         html = html.replace("${loadScript}", loadscript);
         String style = lxtool.getWebCode("<sec-style>");
-        style +=lxtool.getWebCode("<list-style>");
+        style += lxtool.getWebCode("<list-style>");
         html = html.replace("${style}", style);
-        html = html.replace("${jsoninfo}",jsonResult.toJSONString());
+        html = html.replace("${jsoninfo}", jsonResult.toJSONString());
+        String chartModule = "";
+        if (nodeRelation != null) {
+            chartModule = processEChartsModuleInfo(nodeRelation);
+        }
+
+        html = html.replace("${chartModule}", chartModule);
         return html;
     }
 
-    public String validIsNull(String s){
-        if(s == null || "".equals(s))
+    public String processEChartsModuleInfo(Map<Integer, Object> nodeRelationMap) {
+        String res = "<div id=\"chartDiv\">未连接网络或网络质量不佳导致加载图形失败，请尝试刷新页面</div>";
+        res += "<script type=\"text/javascript\">        var chartDom = document.getElementById('chartDiv');        var myChart = echarts.init(chartDom);        var option;        var Jsongraph = {            \"nodes\": ${Jsongraph.nodeList},            \"links\": ${Jsongraph.linksList},            \"categories\": []        };       function processChart(graph) {   if (graph.nodes.length > 0) { $('#chartDiv').css('display', 'block') };         option = {                title: {                    text: '${Jsongraph.title}',                },                tooltip: {},                legend: [{                     selectedMode: 'single',                    data: graph.categories.map(function (a) {                        return a.Nm;                    })                }],                animationDuration: 1500,                animationEasingUpdate: 'quinticInOut',                series: [                    {                                             type: 'graph',                        layout: 'force',                        data: graph.nodes,                        links: graph.links,                        categories: graph.categories,                        roam: true,                         draggable:true,                        itemStyle: {                                                        color: {                                type: 'linear',                                x: 0,                                y: 0,                                x2: 0,                                y2: 1,                                colorStops: [{                                    offset: 0, color: 'lightcoral'                                 }, {                                    offset: 1, color: 'coral'                                 }],                            },                        },                        zoom: 10,                        label: {                            position: 'bottom',                                                     color:'white', backgroundColor:'coral', fontSize:12, padding:2,                           shadowColor:'gray',                            shadowBlur:5,                            shadowOffsetX:2,                            shadowOffsetY:2,                            show:true                        },                        edgeLabel:{                            show:true,                            formatter: '{c}',                        },      edgeSymbol: ['none', 'arrow'],                  lineStyle: {                            color: 'source',                   borderRadius: 2,         curveness: 0.2,                            width:5                        },                        emphasis: {                            focus: 'adjacency',                            lineStyle: {                                width: 15                            }                        }                    }                ]            };            myChart.setOption(option);            option && myChart.setOption(option);        };        processChart(Jsongraph)</script>";
+
+        List<Object> nodeJson = new ArrayList<>(), linksJson = new ArrayList<>();
+        validNodeIdList = new ArrayList<>();
+        for (int i = 0; i < nodeRelationMap.size(); i++) {
+            Map<String, Object> nodeRelation = (Map<String, Object>) nodeRelationMap.get(i);
+
+
+            Map<String, Object> innerJson = new HashMap<>();
+            Long suuid = (Long) nodeRelation.get("startnodeId");
+            Long euuid = (Long) nodeRelation.get("endnodeId");
+            Long myselfId = (Long) nodeRelation.get("myselfId");
+            if (!validIsIdRepeat(suuid) || i < 1) {
+
+                innerJson.put("id", suuid.toString());
+                innerJson.put("name", nodeRelation.get("startnode").toString());
+                nodeJson.add(innerJson);
+                innerJson = new HashMap<>();
+            }
+
+            if (!validIsIdRepeat(euuid) || i < 1) {
+
+                innerJson.put("id", euuid.toString());
+                innerJson.put("name", nodeRelation.get("endnode").toString());
+                nodeJson.add(innerJson);
+                innerJson = new HashMap<>();
+
+            }
+            innerJson.put("source", suuid.toString());
+            innerJson.put("target", euuid.toString());
+            innerJson.put("value", nodeRelation.get("typename").toString());
+            linksJson.add(innerJson);
+        }
+
+        //待替换的内容为结点信息： ${Jsongraph.nodeList}  关系信息：${Jsongraph.linksList}
+        res = res.replace("${Jsongraph.nodeList}", lxtool.convertListToJsonString(nodeJson));
+        res = res.replace("${Jsongraph.linksList}", lxtool.convertListToJsonString(linksJson));
+        res = res.replace("${Jsongraph.title}", "结点关系");
+        return res;
+    }
+
+    /**
+     * @Author: chenlx
+     * @Date: 2021-02-22 14:03:23
+     * @Params: null
+     * @Return
+     * @Description: 判断结点的ID是否已经记录。false-未记录，true-已记录
+     */
+    public boolean validIsIdRepeat(Long id) {
+        boolean status = false;
+        for (Long forid : validNodeIdList) {
+            if (forid.equals(id)) {
+                status = true;
+                break;
+            }
+        }
+
+        //对临时存的数组进行foreach判断是否重复，无重复 新纪录然后返回真， 有重复不存返回假
+        if (status == false)
+            validNodeIdList.add(id);
+
+        return status;
+
+    }
+
+    public String validIsNull(String s) {
+        if (s == null || "".equals(s))
             return "/";
         return s;
     }
+
     /**
      * @Author: chenlx
      * @Date: 2021-01-20 15:38:01
@@ -243,7 +322,7 @@ public class youdaoTool {
      * @Return
      * @Description: 将查找的信息组成有道划词的显示格式
      */
-    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage) {
+    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
             lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
             return getUnkown(queryKey);
@@ -260,9 +339,9 @@ public class youdaoTool {
             return getUnkown(queryKey);
         }
 
-        if("true".equals(isNewPage)){
+        if ("true".equals(isNewPage)) {
             //如若为新开页面，则转发至专门处理html页面的函数进行页面处理。
-            String html = translationForHTML(queryKey,nodeList,nodeType,nodeTagList,dataSourceList);
+            String html = translationForHTML(queryKey, nodeList, nodeType, nodeTagList, dataSourceList, nodeRelation);
             return html;
         }
 
@@ -323,6 +402,7 @@ public class youdaoTool {
             res += lxtool.writeTempNote("数据元缺失");
 
             res += "</pre>";
+
         } else if (nodeType == "ReportEntity") {
             res += "<pre>";
             for (int i = 0; i < nodeList.size(); i++) {

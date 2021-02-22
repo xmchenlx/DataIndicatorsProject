@@ -1,5 +1,6 @@
 package com.sjzb.demo.model;
 
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
@@ -56,9 +57,6 @@ public class CodeNodeEntity extends BaseNodeEntity {
     private List<String> digt_cd;
     @Property(name = "Cty_Nm")
     private List<String> cty_nm;
-//    @Property(name = "_Relation_")
-//    private List<String> _relation_;
-
     public CodeNodeEntity() {
     }
 
@@ -209,4 +207,14 @@ public class CodeNodeEntity extends BaseNodeEntity {
                 ", cty_nm=" + cty_nm +
                 '}';
     }
+
+
+    /**
+     * Neo4j 并没有真正的双向关系，我们只有在查询的时候忽略关系的方向
+     * 可以参考下面这个链接对neo4j的关系作出正确的理解：
+     * https://dzone.com/articles/modelling-data-neo4j
+     */
+    @Relationship(type = "代码层级", direction = Relationship.OUTGOING)
+    private List<RelationShipBasicWordEntity> rela;
+
 }

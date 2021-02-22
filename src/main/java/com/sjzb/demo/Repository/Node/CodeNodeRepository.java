@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.CodeNodeEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2021-01-08 9:33:57
  * @Description:
  */
-public interface CodeNodeRepository extends Neo4jRepository<CodeNodeEntity, String> {
+public interface CodeNodeRepository extends Neo4jRepository<CodeNodeEntity, Long> {
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 

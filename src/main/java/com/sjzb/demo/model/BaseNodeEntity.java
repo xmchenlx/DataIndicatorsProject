@@ -18,10 +18,11 @@ import java.util.List;
 @Node
 public class BaseNodeEntity {
 
-    //    @GraphId
+//    @GraphId
     @Id
     @GeneratedValue
-    private String id;
+    @Property(name = "id")
+    private Long id;
 
     @Property(name = "Nm")
     private String nm;
@@ -106,5 +107,26 @@ public class BaseNodeEntity {
 
     public void setSrc(String src) {
         this.basesrc = src;
+    }
+
+    public BaseNodeEntity(Long id, String nm, List<String> basecd, List<String> basecmnt, String basever, String basesrc) {
+        this.id = id;
+        this.nm = nm;
+        this.basecd = basecd;
+        this.basecmnt = basecmnt;
+        this.basever = basever;
+        this.basesrc = basesrc;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BaseNodeEntity(Long id) {
+        this.id = id;
     }
 }

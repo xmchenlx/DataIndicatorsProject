@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.IndicatorsNodeEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2021-01-08 9:33:57
  * @Description:
  */
-public interface IndicatorsNodeRepository extends Neo4jRepository<IndicatorsNodeEntity, String> {
+public interface IndicatorsNodeRepository extends Neo4jRepository<IndicatorsNodeEntity, Long> {
 
     @Query("MATCH (n:`指标`) where n.Nm =~('.*'+$Nm+'.*') RETURN n")
     List<IndicatorsNodeEntity> findIndicatorsNodeEntityByNmLike(@Param("Nm") String nm);

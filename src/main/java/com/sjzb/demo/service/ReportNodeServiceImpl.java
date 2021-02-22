@@ -1,6 +1,6 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.ReportRepository;
+import com.sjzb.demo.Repository.Relationship.ReportRepository;
 import com.sjzb.demo.model.ReportEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

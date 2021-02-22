@@ -1,8 +1,11 @@
 package com.sjzb.demo.model;
 
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,10 +17,8 @@ import java.util.List;
  * @Description: 指标节点实体
  */
 @Node(value = "指标")
+@NodeEntity(label = "指标")
 public class IndicatorsNodeEntity extends BaseNodeEntity {
-//    @Id
-//    @GeneratedValue
-//    private String tid;
 
     @Property(name = "Nm")
     private String nm;
@@ -46,7 +47,6 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
     }
 
     public IndicatorsNodeEntity(String nm, String ver, String src, List<String> us, String src1, String attr, String clbr, String cyc, String def, String fmt, String no, String unt) {
-//        super(nm);
         this.nm = nm;
         this.us = us;
         this.src = src1;
@@ -59,9 +59,20 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
         this.unt = unt;
     }
 
-
-
-
+    public IndicatorsNodeEntity(Long id, String nm, String unt, String src, String attr, String clbr, String cyc, String def, String fmt, String no, List<String> us, List<IndicatorsNodeEntity> rel) {
+        super(id);
+        this.nm = nm;
+        this.unt = unt;
+        this.src = src;
+        this.attr = attr;
+        this.clbr = clbr;
+        this.cyc = cyc;
+        this.def = def;
+        this.fmt = fmt;
+        this.no = no;
+        this.us = us;
+        this.rel = rel;
+    }
 
     public List<String> getUs() {
         return us;
@@ -146,4 +157,7 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
     public void setUnt(String unt) {
         this.unt = unt;
     }
+
+    @Relationship(type = "派生")
+    private List<IndicatorsNodeEntity> rel = new ArrayList<>();
 }

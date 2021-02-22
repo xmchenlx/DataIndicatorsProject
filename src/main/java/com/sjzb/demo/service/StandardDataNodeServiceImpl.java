@@ -1,6 +1,6 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.DataStandardRepository;
+import com.sjzb.demo.Repository.Node.DataStandardRepository;
 import com.sjzb.demo.model.StandardOfDataEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

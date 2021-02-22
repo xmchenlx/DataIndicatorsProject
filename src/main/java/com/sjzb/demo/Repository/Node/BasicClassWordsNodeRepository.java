@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.BasicAndClassWordEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2021-01-08 9:33:57
  * @Description:
  */
-public interface BasicClassWordsNodeRepository extends Neo4jRepository<BasicAndClassWordEntity, String> {
+public interface BasicClassWordsNodeRepository extends Neo4jRepository<BasicAndClassWordEntity, Long> {
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 

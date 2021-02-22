@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.DataSourceEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;

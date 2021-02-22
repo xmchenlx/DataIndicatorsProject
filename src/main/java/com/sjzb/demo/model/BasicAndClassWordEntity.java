@@ -1,7 +1,15 @@
 package com.sjzb.demo.model;
 
+import lombok.Data;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
+
+import java.util.ArrayList;
+import java.util.List;
+
+//import org.springframework.data.neo4j.core.schema.Relationship;
 
 /**
  * @ProgramName: demo_youdao
@@ -10,7 +18,9 @@ import org.springframework.data.neo4j.core.schema.Property;
  * @Description: 基本词类词模型
  */
 
-@Node(value = "基本词类词")
+@Node("基本词类词")
+@NodeEntity(label = "基本词类词")
+@Data
 public class BasicAndClassWordEntity extends BaseNodeEntity {
 
 //    @Id
@@ -47,5 +57,10 @@ public class BasicAndClassWordEntity extends BaseNodeEntity {
     public void setCl(String cl) {
         this.cl = cl;
     }
+
+
+    @Relationship(type = "abbr")
+    private List<RelationShipBasicWordEntity> rel = new ArrayList<>();
+
 
 }

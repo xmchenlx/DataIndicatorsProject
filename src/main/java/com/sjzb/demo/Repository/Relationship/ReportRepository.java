@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Relationship;
 
 import com.sjzb.demo.model.ReportEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -14,7 +14,7 @@ import java.util.List;
  * @Return
  * @Description: 报表操作仓库层
  */
-public interface ReportRepository extends Neo4jRepository<ReportEntity, String> {
+public interface ReportRepository extends Neo4jRepository<ReportEntity, Long> {
 
 
 

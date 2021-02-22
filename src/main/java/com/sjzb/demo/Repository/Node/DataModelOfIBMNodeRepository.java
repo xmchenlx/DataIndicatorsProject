@@ -1,4 +1,4 @@
-package com.sjzb.demo.Repository;
+package com.sjzb.demo.Repository.Node;
 
 import com.sjzb.demo.model.DataModelOfIBMNodeEntity;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -13,7 +13,7 @@ import java.util.List;
  * @Date: 2021-01-08 9:33:57
  * @Description:IBM数据模型数据库操作层
  */
-public interface DataModelOfIBMNodeRepository extends Neo4jRepository<DataModelOfIBMNodeEntity, String> {
+public interface DataModelOfIBMNodeRepository extends Neo4jRepository<DataModelOfIBMNodeEntity, Long> {
 
 //    CodeNodeEntity findCodeNodeEntityByNmLike(String Nm);
 

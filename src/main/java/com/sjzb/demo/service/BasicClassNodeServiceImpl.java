@@ -1,10 +1,13 @@
 package com.sjzb.demo.service;
 
-import com.sjzb.demo.Repository.BasicClassWordsNodeRepository;
+import com.sjzb.demo.Repository.Node.BasicClassWordsNodeRepository;
+import com.sjzb.demo.Repository.Relationship.RelationBasicWordRepository;
+import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.BasicAndClassWordEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,11 @@ public class BasicClassNodeServiceImpl {
 
     @Autowired
     private BasicClassWordsNodeRepository bcwRe;
+
+    @Autowired
+    private RelationBasicWordRepository reRe;
+
+    private lxTool lxtool = new lxTool();
 
 //    public List<BasicAndClassWordEntity> selectBCWInfoByNm(String querykey){
 //        List<BasicAndClassWordEntity> bacwList = bcwRe.findByNm(querykey);
@@ -79,15 +87,31 @@ public class BasicClassNodeServiceImpl {
         if (t.size() == 0) {
             return res;
         }
+        String selectedNm = t.iterator().next().getNm();
         Object tempTags = bcwRe.findTagByNm(t.get(0).getNm());
         List<String> nodeTagList = getListFromJson(tempTags.toString());
+//        List<Object> relationList =  reRe.findAbbrRelationByNm(selectedNm);
+        List<Object> relationList =  new ArrayList<>(),tempList = new ArrayList<>();
 
+        tempList.add(reRe.findAbbrRelationByNm(selectedNm));
+        for(int i=0;i<tempList.size();i++){
+            List<Object> temp = (List<Object>)tempList.get(i);
+            for(int j=0;j<temp.size();j++){
+                relationList.add(temp.get(j));
+            }
+        }
+
+        res.put("node_relation",lxtool.ConvertPathValueToRelationshipMap(relationList,selectedNm));
+
+//        res.put("node_relation",lxtool.tempConvertPathValueToRelationshipMap(relationList));
         res.put("node_data", t);
-        res.put("node_Nm", t.iterator().next().getNm());
+        res.put("node_Nm", selectedNm);
         res.put("node_tag", nodeTagList);
         res.put("node_type", "BasicAndClassWordEntity");
         res.put("len", t.size());
         return res;
 
     }
+
+
 }
