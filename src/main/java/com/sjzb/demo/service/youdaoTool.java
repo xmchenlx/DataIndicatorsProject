@@ -1,7 +1,7 @@
 package com.sjzb.demo.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sjzb.demo.Result.lxTool;
+import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

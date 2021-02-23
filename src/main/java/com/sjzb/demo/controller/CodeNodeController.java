@@ -1,8 +1,9 @@
 package com.sjzb.demo.controller;
 
-import com.sjzb.demo.Result.lxTool;
 import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.service.*;
+import com.sjzb.demo.tool.SystemSetting;
+import com.sjzb.demo.tool.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,7 @@ public class CodeNodeController {
 
 
     lxTool lxtool = new lxTool();
-
+    SystemSetting sysTool = new SystemSetting();
 //    @Autowired
 //    dataSourceServiceImpl dsService;
 
@@ -110,13 +111,13 @@ public class CodeNodeController {
                     int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
                     String ifMaxOver50Str = (maxNum == 50 ? "的前50项" : "");
                     dataString += "<h5 style='color:black;'>在 " + nodeTag + " 找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
-                    findGuide += "<a class='listText' href='#" + nodeTag + "'>" + nodeTag + "</a><br>";
+                    findGuide += "<a class='listText' href='#" + nodeTag + "'>跳转到：" + nodeTag + "</a><br>";
                     for (int i = 0; i < maxNum; i++) {
                         BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
                         String nodeName = nodeData.getNm();
                         count++;
                         //target='_blank'
-                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + lxtool.getLocalHost() + ":6868?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
+                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
                     }
                     dataString += "<br/>";
 

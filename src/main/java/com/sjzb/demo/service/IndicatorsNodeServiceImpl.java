@@ -2,7 +2,7 @@ package com.sjzb.demo.service;
 
 import com.sjzb.demo.Repository.Node.IndicatorsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationIndicatorNodeRepository;
-import com.sjzb.demo.Result.lxTool;
+import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.IndicatorsNodeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

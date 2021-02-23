@@ -2,7 +2,7 @@ package com.sjzb.demo.service;
 
 import com.sjzb.demo.Repository.Node.BasicClassWordsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationBasicWordRepository;
-import com.sjzb.demo.Result.lxTool;
+import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.BasicAndClassWordEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sjzb.demo.Result.lxTool.getListFromJson;
+import static com.sjzb.demo.tool.lxTool.getListFromJson;
 
 /**
  * @ProgramName: demo_youdao

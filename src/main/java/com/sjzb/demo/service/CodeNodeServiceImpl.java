@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sjzb.demo.Result.lxTool.getListFromJson;
+import static com.sjzb.demo.tool.lxTool.getListFromJson;
 
 /**
  * @ProgramName: demo_youdao

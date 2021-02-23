@@ -1,4 +1,4 @@
-package com.sjzb.demo.Result;
+package com.sjzb.demo.tool;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONUtil;
@@ -7,8 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.driver.internal.value.PathValue;
 import org.neo4j.driver.types.Path;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -105,23 +103,7 @@ public class lxTool {
     }
 
 
-    /**
-     * @Author: chenlx
-     * @Date: 2021-02-04 9:37:15
-     * @Params: null
-     * @Return
-     * @Description: 获取项目运行的ip地址
-     */
-    public String getLocalHost() {
-        InetAddress address = null;
-        try {
-            address = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        String hostAdd = address.getHostAddress();
-        return hostAdd;
-    }
+
 
 
     public void soutLog(String type, String key, String note) {
