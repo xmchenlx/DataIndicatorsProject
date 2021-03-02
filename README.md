@@ -7,6 +7,12 @@ This tool is stored data in Neo4j Desktp(4.2.1) , proceed requests by Springboot
 
 
 # Commit Log
+##2021-02-26
+- 新增自定义查询排序功能
+- 修复因网页与词典双端发起请求产生的Session不一致导致设置无效的问题
+- 新增自定义Session监听
+- 新增排序设置实体对象
+- 优化请求处理顺序（仍在优化）
 
 ## 2021-02-23
 
@@ -29,6 +35,7 @@ This tool is stored data in Neo4j Desktp(4.2.1) , proceed requests by Springboot
 ## 2021-02-11
 
 - 新年快乐~
+- Happy Chinese Year~
 
 ## 2021-02-08
 

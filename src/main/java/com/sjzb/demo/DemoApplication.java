@@ -13,6 +13,9 @@ public class DemoApplication {
         SpringApplication.run(DemoApplication.class, args);
     }
 
-
+//    @Bean
+//    public TomcatServletWebServerFactory servletContainer(){
+//        return new TomcatServletWebServerFactory(6868) ;
+//    }
 
 }

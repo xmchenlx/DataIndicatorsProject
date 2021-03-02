@@ -51,7 +51,6 @@ public class IndicatorsNodeServiceImpl {
 
         res.put("node_data", t);
         res.put("node_Nm", t.iterator().next().getNm());
-//        res.put("node_tag", nodeTagList);
         res.put("node_tag", nodeTagList);
         res.put("node_type", "IndicatorsNodeEntity");
         res.put("len", t.size());
@@ -71,20 +70,20 @@ public class IndicatorsNodeServiceImpl {
         String selectedNm = t.iterator().next().getNm();
         List<String> nodeTagList = new ArrayList<>();
         nodeTagList.add("指标"); //updated in 2021-02-04 15:19
-        List<Object> relationList =  new ArrayList<>(),tempList = new ArrayList<>();
+        List<Object> relationList = new ArrayList<>(), tempList = new ArrayList<>();
 //        针对不同的关系查询类型，循环加入数组以解决数据嵌套的问题（A{0{0、1}、1{0、1}})
         tempList.add(reIndicateRe.findPSRelationByNmOut(selectedNm));
         tempList.add(reIndicateRe.findYSRelationByNmOut(selectedNm));
         tempList.add(reIndicateRe.findPSRelationByNmIn(selectedNm));
         tempList.add(reIndicateRe.findYSRelationByNmIn(selectedNm));
-        for(int i=0;i<tempList.size();i++){
-            List<Object> temp = (List<Object>)tempList.get(i);
-            for(int j=0;j<temp.size();j++){
+        for (int i = 0; i < tempList.size(); i++) {
+            List<Object> temp = (List<Object>) tempList.get(i);
+            for (int j = 0; j < temp.size(); j++) {
                 relationList.add(temp.get(j));
             }
         }
 
-        res.put("node_relation",lxtool.ConvertPathValueToRelationshipMap(relationList,selectedNm));
+        res.put("node_relation", lxtool.ConvertPathValueToRelationshipMap(relationList, selectedNm));
         res.put("node_data", t);
         res.put("node_Nm", selectedNm);
         res.put("node_tag", nodeTagList);

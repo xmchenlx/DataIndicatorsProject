@@ -1,6 +1,7 @@
 package com.sjzb.demo.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sjzb.demo.tool.SystemSetting;
 import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class youdaoTool {
 
     @Autowired
     dataSourceServiceImpl dsService;
+
+    private SystemSetting sysTool = new SystemSetting();
 
 
     /**
@@ -347,6 +350,8 @@ public class youdaoTool {
 
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
         String res = "";
+        res += "<p  class='listText'><a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&ist=true' >" + "[点我打开新网页查看更多]" + "</a></p>";
+
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
             for (int i = 0; i < nodeList.size(); i++) {
