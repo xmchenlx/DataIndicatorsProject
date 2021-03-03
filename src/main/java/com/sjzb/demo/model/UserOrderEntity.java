@@ -20,6 +20,7 @@ public class UserOrderEntity {
     private List<Integer> order;
     private List<Integer> select;
     private Map<Integer, String> data_ch;
+    private String jsessionid;
 
     @Override
     public String toString() {

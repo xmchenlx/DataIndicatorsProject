@@ -1,6 +1,7 @@
 package com.sjzb.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sjzb.demo.MySessionContext;
 import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.UserOrderEntity;
 import com.sjzb.demo.service.*;
@@ -64,11 +65,18 @@ public class AllController {
         HttpSession session = request.getSession();
 //        MySessionContext.addSession(session);
         System.out.println("doGet=" + session.getId());
+        MySessionContext myc = MySessionContext.getInstance();
+
+        if (session.isNew()) {
+            myc.addSession(session);
+        }
         Object a = session.getAttribute("sjzb_order");
         UserOrderEntity uoe = (UserOrderEntity) session.getAttribute("sjzb_order");
         if (uoe == null) {
             uoe = generateDefaultSessionInfo(session);
             session.setAttribute("sjzb_order", uoe);
+            myc.addSession(session);
+
         }
         String uri = request.getRequestURI();
         if (uri.equals("/fsearch")) {
@@ -114,10 +122,11 @@ public class AllController {
 
     protected void getWordSetting(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String webRes = "";
-        HttpSession session = request.getSession();
+//        HttpSession session = request.getSession();
+
         String sessionId = request.getParameter("sid");
-//        HttpSession session = myc.getSession(sessionId);
-//        String queryKey = request.getParameter("body");
+        MySessionContext myc = MySessionContext.getInstance();
+        HttpSession session = myc.getSession(sessionId);
         System.out.println("getWordSetting=" + session.getId());
 
         UserOrderEntity uoe = (UserOrderEntity) session.getAttribute("sjzb_order");
@@ -125,6 +134,7 @@ public class AllController {
             uoe = generateDefaultSessionInfo(session);
         webRes = lxtool.getWebCode("<settingPage>");
         webRes = webRes.replace("${javaDataReplace}", uoe.toString());
+        webRes = webRes.replace("${JSESSIONID}", sessionId);
         response.setContentType("text/html;charset=UTF-8");
 //        System.out.println(translate);
         response.getWriter().print(webRes);
@@ -132,10 +142,12 @@ public class AllController {
 
     @PostMapping("/fsettingUpload")
     protected void updateWordSetting(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
+//        HttpSession session = request.getSession();
+        UserOrderEntity queryKey = JSONObject.parseObject(request.getParameter("body"), UserOrderEntity.class);
+        MySessionContext myc = MySessionContext.getInstance();
+        HttpSession session = myc.getSession(queryKey.getJsessionid());
         System.out.println("updateWordSetting=" + session.getId());
 
-        UserOrderEntity queryKey = JSONObject.parseObject(request.getParameter("body"), UserOrderEntity.class);
         session.setAttribute("sjzb_order", queryKey);
         session.setMaxInactiveInterval(60 * 60);//以秒为单位
         response.getWriter().print("FINISHED");
@@ -181,29 +193,22 @@ public class AllController {
             System.out.println("数据库没有找到划词的节点或关系，请求的关键词为：" + queryKey);
             translate = ydtool.getUnkown(queryKey);
         } else {
-            //查询结果只有1条时，直接呈现详细结果
             Map<String, Object> tempMap = new HashMap<>();
-//            Set<Integer> keys = searchBriefRes.keySet();
             Iterator<Integer> keys = searchBriefRes.keySet().iterator();
-            Integer srarchCurrentKey = keys.next();
-            tempMap = (Map<String, Object>) searchBriefRes.get(srarchCurrentKey);
+            Integer searchCurrentKey = keys.next();
+            tempMap = (Map<String, Object>) searchBriefRes.get(searchCurrentKey);
             if (searchBriefRes.size() == 1 && (int) tempMap.get("len") < 2) {
+                //查询结果只有1条时，直接呈现详细结果
                 count++;
                 translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"), isNewPage, (Map<Integer, Object>) tempMap.get("node_relation"));
             } else {
 //                查询结果多条时，呈现结果列表
                 //循环节点实体数据
-                UserOrderEntity userOrder = (UserOrderEntity) session.getAttribute("sjzb_order");
-                for (int uoIndex = 0; uoIndex < userOrder.getSelect().size(); uoIndex++) {
-                    if (uoIndex != 0) {
-                        if (keys.hasNext())
-                            srarchCurrentKey = keys.next();
-                    }
-                    for (int m = 0; m < searchBriefRes.size(); m++) {
-                        Integer currentSel = userOrder.getSelect().get(m);
-                        if (currentSel != srarchCurrentKey)
-                            continue;
-                        Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(m);
+//                每类结果分别存在了不同的map子项，查询到多项结果时应该变量提取结果
+                    while (keys.hasNext()) {
+                        searchCurrentKey = keys.next();
+                        Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(searchCurrentKey);
+                        if (tempBriefRes == null) continue;
                         List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
                         //循环节点内的List数据
                         String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
@@ -219,15 +224,14 @@ public class AllController {
                             dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
                         }
                         dataString += "<br/>";
-                        break;
-                    }
+//                        break;
                 }
+
                 if (count > 50)
                     dataString = findGuide + "<hr><br>" + dataString;
                 translate = ydtool.translationList(dataString, count, a);
 
             }
-        }
 
 
 //        //查询字段存在的结点实体（在逻辑上表现为：查找查询信息分别来自于哪些分类）
@@ -246,13 +250,14 @@ public class AllController {
 //
 //            translate = ydtool.translation(queryKey, nodeData.get("node_data"), nodeType, nodeTagList);
 //        }
-        response.setContentType("text/html;charset=UTF-8");
+            response.setContentType("text/html;charset=UTF-8");
 //        System.out.println(translate);
-        response.getWriter().print(translate);
+            response.getWriter().print(translate);
 
-        long _end = System.currentTimeMillis();
-        System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
+            long _end = System.currentTimeMillis();
+            System.out.println("当前程序：" + Thread.currentThread().getStackTrace()[1].getMethodName() + " 耗时" + (((float) (_end - _begin) / 1000)) + "秒.");
 //
+        }
     }
 
 
@@ -264,6 +269,8 @@ public class AllController {
      * @Description: 根据搜寻词模糊查找结点的简要信息，返回列表
      */
     public Map<Integer, Object> searchBriefDataInVarietyOfClass(String qk) {
+
+
         Map<Integer, Object> res = new HashMap<>();
         int index = 0;
         Map<String, Object> tempQueryNodeList;
