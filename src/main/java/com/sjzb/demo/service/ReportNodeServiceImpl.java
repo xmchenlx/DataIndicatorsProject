@@ -34,7 +34,7 @@ public class ReportNodeServiceImpl {
     public Map<String, Object> selectReportNodeInfoByNmLike(String querykey) {
         Map<String, Object> res = new HashMap<>();
         List<ReportEntity> t = reportRe.findReportEntityByNmLike(querykey);
-        System.out.println(t);
+//        System.out.println(t);
 
         res.put("len", t.size());
         if (t.size() == 0) {

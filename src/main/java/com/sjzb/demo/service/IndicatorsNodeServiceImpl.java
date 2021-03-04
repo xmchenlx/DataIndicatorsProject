@@ -40,7 +40,7 @@ public class IndicatorsNodeServiceImpl {
         Map<String, Object> res = new HashMap<>();
 //        List<Object> a = ibmDMRe.findDataModelOfIBMNodeEntityByNmLike(querykey);
         List<IndicatorsNodeEntity> t = indicateRe.findIndicatorsNodeEntityByNmLike(querykey);
-        System.out.println(t);
+//        System.out.println(t);
 
         res.put("len", t.size());
         if (t.size() == 0) {

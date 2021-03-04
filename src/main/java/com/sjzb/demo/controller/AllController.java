@@ -65,7 +65,7 @@ public class AllController {
 //        response.setHeader("Access-Control-Allow-Origin", "http://js.host");
         HttpSession session = request.getSession();
 //        MySessionContext.addSession(session);
-        System.out.println("doGet=" + session.getId());
+//        System.out.println("doGet=" + session.getId());
         MySessionContext myc = MySessionContext.getInstance();
 
         if (session.isNew()) {
@@ -89,7 +89,7 @@ public class AllController {
     }
 
     protected UserOrderEntity generateDefaultSessionInfo(HttpSession session) {
-        System.out.println("generateDefaultSessionInfo=" + session.getId());
+//        System.out.println("generateDefaultSessionInfo=" + session.getId());
         UserOrderEntity uoe = (UserOrderEntity) session.getAttribute("sjzb_order");
         if (uoe == null) {
             uoe = new UserOrderEntity();
@@ -128,7 +128,7 @@ public class AllController {
         String sessionId = request.getParameter("sid");
         MySessionContext myc = MySessionContext.getInstance();
         HttpSession session = myc.getSession(sessionId);
-        System.out.println("getWordSetting=" + session.getId());
+//        System.out.println("getWordSetting=" + session.getId());
 
         UserOrderEntity uoe = (UserOrderEntity) session.getAttribute("sjzb_order");
         if (uoe == null)
@@ -147,7 +147,7 @@ public class AllController {
         UserOrderEntity queryKey = JSONObject.parseObject(request.getParameter("body"), UserOrderEntity.class);
         MySessionContext myc = MySessionContext.getInstance();
         HttpSession session = myc.getSession(queryKey.getJsessionid());
-        System.out.println("updateWordSetting=" + session.getId());
+//        System.out.println("updateWordSetting=" + session.getId());
 
         session.setAttribute("sjzb_order", queryKey);
         session.setMaxInactiveInterval(60 * 60);//以秒为单位
@@ -158,7 +158,7 @@ public class AllController {
         long _begin = System.currentTimeMillis();
         HttpSession session = request.getSession();
         String sessionId = session.getId();
-        System.out.println("getWord=" + sessionId);
+//        System.out.println("getWord=" + sessionId);
         session = request.getSession();
         String queryKey = request.getParameter("q");            //提取Request信息里的查询字段
         String isNewPage = request.getParameter("ist");         //提取是否为新开标签布尔

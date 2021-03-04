@@ -36,7 +36,7 @@ public class StandardDataNodeServiceImpl {
         Map<String, Object> res = new HashMap<>();
 //        Object a = dsRe.findStandardOfDataEntityByNmLike(querykey);
         List<StandardOfDataEntity> t = dsRe.findStandardOfDataEntityByNmLike(querykey);
-        System.out.println(t);
+//        System.out.println(t);
 
         res.put("len", t.size());
         if (t.size() == 0) {
