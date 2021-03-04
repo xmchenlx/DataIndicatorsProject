@@ -12,6 +12,7 @@ This tool is stored data in Neo4j Desktp(4.2.1) , proceed requests by Springboot
 - 优化自定义查询功能的实现逻辑
 - 修复新页面的Session不能记录到有道Session的问题
 - 取消部分Sout输出简化排版内容
+- 新增枚举信息以保持称呼一致
 - 修复Tomcat运行时端口为默认8080的问题
 ##2021-02-26
 - 新增自定义查询排序功能
