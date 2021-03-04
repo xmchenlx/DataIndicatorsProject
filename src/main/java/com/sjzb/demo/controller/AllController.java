@@ -3,6 +3,7 @@ package com.sjzb.demo.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sjzb.demo.MySessionContext;
 import com.sjzb.demo.model.BaseNodeEntity;
+import com.sjzb.demo.model.TypeEnum;
 import com.sjzb.demo.model.UserOrderEntity;
 import com.sjzb.demo.service.*;
 import com.sjzb.demo.tool.SystemSetting;
@@ -183,11 +184,12 @@ public class AllController {
 
         //请求是否为新开页面（a标签点开的请求）。为是-精确查找；为否-模糊匹配
         Map<Integer, Object> searchBriefRes;
-        if ("true".equals(isNewPage))
+        if ("true".equals(isNewPage)) {
             searchBriefRes = searchBriefDataInVarietyOfClassInAcc(queryKey, secQueryKey);
-        else
-            searchBriefRes = searchBriefDataInVarietyOfClass(queryKey);
-
+        } else {
+            UserOrderEntity userOrder = (UserOrderEntity) session.getAttribute("sjzb_order");
+            searchBriefRes = searchBriefDataInVarietyOfClass(queryKey, userOrder);
+        }
         if (searchBriefRes.size() == 0) {
             //查询无结果时，返回未知信息
             System.out.println("数据库没有找到划词的节点或关系，请求的关键词为：" + queryKey);
@@ -205,25 +207,26 @@ public class AllController {
 //                查询结果多条时，呈现结果列表
                 //循环节点实体数据
 //                每类结果分别存在了不同的map子项，查询到多项结果时应该变量提取结果
-                    while (keys.hasNext()) {
-                        searchCurrentKey = keys.next();
-                        Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(searchCurrentKey);
-                        if (tempBriefRes == null) continue;
-                        List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
-                        //循环节点内的List数据
-                        String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
-                        int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
-                        String ifMaxOver50Str = (maxNum == 50 ? "的前50项" : "");
-                        dataString += "<h5 style='color:black;'>在 " + nodeTag + " 找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
-                        findGuide += "<a class='listText' href='#" + nodeTag + "'>跳转到：" + nodeTag + "</a><br>";
-                        for (int i = 0; i < maxNum; i++) {
-                            BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
-                            String nodeName = nodeData.getNm();
-                            count++;
-                            //target='_blank'
-                            dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
-                        }
-                        dataString += "<br/>";
+                while (keys.hasNext()) {
+
+                    Map<String, Object> tempBriefRes = (Map<String, Object>) searchBriefRes.get(searchCurrentKey);
+                    if (tempBriefRes == null) continue;
+                    List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
+                    //循环节点内的List数据
+                    String nodeTag = tempBriefRes.get("node_tag").toString().replace("Optional", "");
+                    int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
+                    String ifMaxOver50Str = (maxNum == 50 ? "的前50项" : "");
+                    dataString += "<h5 style='color:black;'>在 " + nodeTag + " 找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
+                    findGuide += "<a class='listText' href='#" + nodeTag + "'>跳转到：" + nodeTag + "</a><br>";
+                    for (int i = 0; i < maxNum; i++) {
+                        BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
+                        String nodeName = nodeData.getNm();
+                        count++;
+                        //target='_blank'
+                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + queryKey + "&ist=true' >" + nodeName + "</a></p>";
+                    }
+                    dataString += "<br/>";
+                    searchCurrentKey = keys.next();
 //                        break;
                 }
 
@@ -268,50 +271,87 @@ public class AllController {
      * @Return
      * @Description: 根据搜寻词模糊查找结点的简要信息，返回列表
      */
-    public Map<Integer, Object> searchBriefDataInVarietyOfClass(String qk) {
-
-
+    public Map<Integer, Object> searchBriefDataInVarietyOfClass(String qk, UserOrderEntity userOrder) {
         Map<Integer, Object> res = new HashMap<>();
         int index = 0;
         Map<String, Object> tempQueryNodeList;
+//        根据用户自定义查询的节点与节点顺序进行排序
+        List<Integer> selectList = userOrder.getSelect();
+        for (Integer i = 0; i < selectList.size(); i++) {
+            Integer currentSelectIndex = selectList.get(i);
+            if (currentSelectIndex.equals(TypeEnum.IndicatorsNode.getIndex())) {
+                //查找【指标节点】
+                tempQueryNodeList = indicatorService.selectIndicatorsLike(qk);
+                if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+                    res.put(index, tempQueryNodeList);
+                }
+            } else if (currentSelectIndex.equals(TypeEnum.BasicAndClassWord.getIndex())) {
+                //查找【基本词类词节点】
+                tempQueryNodeList = basicClassService.selectBCWInfoByNmLike(qk);
+                if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+                    res.put(index, tempQueryNodeList);
+                }
+            } else if (currentSelectIndex.equals(TypeEnum.Code.getIndex())) {
+                //查找【代码节点】（基础数据标准）
+                tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
+                if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+                    res.put(index, tempQueryNodeList);
+                }
+            } else if (currentSelectIndex.equals(TypeEnum.Report.getIndex())) {
+                //查找【报表节点】
+                tempQueryNodeList = reportService.selectReportNodeInfoByNmLike(qk);
+                if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+                    res.put(index, tempQueryNodeList);
+                }
+            } else if (currentSelectIndex.equals(TypeEnum.DataModelOfIBMNode.getIndex())) {
+                //查找【IBM模型节点】
+                tempQueryNodeList = ibmModelService.selectIBMModelByNmLike(qk);
+                if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+                    res.put(index, tempQueryNodeList);
+                }
 
-        //查找【指标节点】
-        tempQueryNodeList = indicatorService.selectIndicatorsLike(qk);
-        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-            res.put(index, tempQueryNodeList);
+            }
+            index++;
         }
-        index++;
-        //查找【基本词类词节点】
-        tempQueryNodeList = basicClassService.selectBCWInfoByNmLike(qk);
-        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-            res.put(index, tempQueryNodeList);
-        }
-        index++;
-        //查找【代码节点】（基础数据标准）
-        tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
-        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-            res.put(index, tempQueryNodeList);
-        }
-        index++;
-//        //查找【基础数据标准节点】
-//        tempQueryNodeList = standardDataService.selectDataStandardNodeInfoByNmLike(qk);
+
+//        //查找【指标节点】
+//        tempQueryNodeList = indicatorService.selectIndicatorsLike(qk);
 //        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-//            res.put(index++, tempQueryNodeList);
+//            res.put(index, tempQueryNodeList);
 //        }
+//        index++;
+//        //查找【基本词类词节点】
+//        tempQueryNodeList = basicClassService.selectBCWInfoByNmLike(qk);
+//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+//            res.put(index, tempQueryNodeList);
+//        }
+//        index++;
+//        //查找【代码节点】（基础数据标准）
+//        tempQueryNodeList = cnService.selectCodeNodeListByNmLike(qk);
+//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+//            res.put(index, tempQueryNodeList);
+//        }
+//        index++;
+////        //查找【基础数据标准节点】
+////        tempQueryNodeList = standardDataService.selectDataStandardNodeInfoByNmLike(qk);
+////        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+////            res.put(index++, tempQueryNodeList);
+////        }
+//
+//        //查找【报表节点】
+//        tempQueryNodeList = reportService.selectReportNodeInfoByNmLike(qk);
+//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+//            res.put(index, tempQueryNodeList);
+//        }
+//        index++;
+//
+//        //查找【IBM模型节点】
+//        tempQueryNodeList = ibmModelService.selectIBMModelByNmLike(qk);
+//        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
+//            res.put(index, tempQueryNodeList);
+//        }
+//        index++;
 
-        //查找【报表节点】
-        tempQueryNodeList = reportService.selectReportNodeInfoByNmLike(qk);
-        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-            res.put(index, tempQueryNodeList);
-        }
-        index++;
-
-        //查找【IBM模型节点】
-        tempQueryNodeList = ibmModelService.selectIBMModelByNmLike(qk);
-        if (Integer.parseInt(String.valueOf(tempQueryNodeList.get("len"))) != 0) {
-            res.put(index, tempQueryNodeList);
-        }
-        index++;
         return res;
     }
 
