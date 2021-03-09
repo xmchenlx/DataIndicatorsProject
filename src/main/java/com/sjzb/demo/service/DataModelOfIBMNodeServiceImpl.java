@@ -2,6 +2,7 @@ package com.sjzb.demo.service;
 
 import com.sjzb.demo.Repository.Node.DataModelOfIBMNodeRepository;
 import com.sjzb.demo.model.DataModelOfIBMNodeEntity;
+import com.sjzb.demo.model.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,22 +34,15 @@ public class DataModelOfIBMNodeServiceImpl {
      */
     public Map<String, Object> selectIBMModelByNmLike(String querykey) {
         Map<String, Object> res = new HashMap<>();
-//        List<Object> a = ibmDMRe.findDataModelOfIBMNodeEntityByNmLike(querykey);
         List<DataModelOfIBMNodeEntity> t = ibmDMRe.findDataModelOfIBMNodeEntityByNmLike(querykey);
-//        System.out.println(t);
-
         res.put("len", t.size());
         if (t.size() == 0) {
             return res;
         }
-//        Object tempTags = bcwRe.findTagByNm(t.get(0).getNm());   --搜索应当按照当前实体来显示标签而非直接读取neo4j数据库里的结点标签遍历。下同。 20210204 15:16
-//        List<String> nodeTagList = getListFromJson(tempTags.toString());
         List<String> nodeTagList = new ArrayList<>();
-        nodeTagList.add("IBM数据模型分类"); //updated in 2021-02-04 15:19
-
+        nodeTagList.add(TypeEnum.DataModelOfIBMNode.getName());
         res.put("node_data", t);
         res.put("node_Nm", t.iterator().next().getNm());
-//        res.put("node_tag", nodeTagList);
         res.put("node_tag", nodeTagList);
         res.put("node_type", "DataModelOfIBMNodeEntity");
         res.put("len", t.size());
@@ -66,14 +60,12 @@ public class DataModelOfIBMNodeServiceImpl {
             return res;
         }
         List<String> nodeTagList = new ArrayList<>();
-        nodeTagList.add("IBM数据模型分类"); //updated in 2021-02-04 15:19
-
+        nodeTagList.add(TypeEnum.DataModelOfIBMNode.getName());
         res.put("node_data", t);
         res.put("node_Nm", t.iterator().next().getNm());
         res.put("node_tag", nodeTagList);
         res.put("node_type", "DataModelOfIBMNodeEntity");
         res.put("len", t.size());
         return res;
-
     }
 }

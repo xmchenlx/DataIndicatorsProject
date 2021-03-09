@@ -10,16 +10,13 @@ package com.sjzb.demo.model;
 public enum TypeEnum {
     BaseNode("基础节点", 999),
     IndicatorsNode("指标", 0),
-
     BasicAndClassWord("基本词类词", 1),
-
-
-    Code("代码、基础数据标准", 2),
-
+    Code("代码", 2),
     Report("报表/报文", 3),
-
     DataModelOfIBMNode("IBM数据模型分类", 4),
-
+    StandardOfData("基础数据标准", 5),
+    EntityOfDataModel("数据模型-实体",6),
+    PropertyOfDataModel("数据模型-属性",7),
     DataSource("数据元", 998);
 
 
@@ -55,7 +52,7 @@ public enum TypeEnum {
 
     public int getIndexByChName(Integer index) {
         Integer res = -1;
-        int i=0;
+        int i = 0;
         for (TypeEnum c : TypeEnum.values()) {
             Integer a = c.index;
             if (c.index.equals(index)) {

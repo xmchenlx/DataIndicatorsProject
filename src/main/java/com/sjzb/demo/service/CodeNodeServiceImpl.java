@@ -1,8 +1,8 @@
 package com.sjzb.demo.service;
 
 import com.sjzb.demo.Repository.Node.CodeNodeRepository;
-import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.CodeNodeEntity;
+import com.sjzb.demo.model.TypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.sjzb.demo.tool.lxTool.getListFromJson;
 
 /**
  * @ProgramName: demo_youdao
@@ -40,11 +38,10 @@ public class CodeNodeServiceImpl {
         if (tempNodeList.size() == 0) {
             return res;
         }
-        Object tempTags = cnRe.findTagByNm(tempNodeList.get(0).getNm());
-        List<String> nodeTagList = getListFromJson(tempTags.toString());
-
-
-
+//        Object tempTags = cnRe.findTagByNm(tempNodeList.get(0).getNm());
+//        List<String> nodeTagList = getListFromJson(tempTags.toString());
+        List<String> nodeTagList = new ArrayList<>();
+        nodeTagList.add(TypeEnum.Code.getName());
         res.put("node_data", tempNodeList);
         res.put("node_Nm", tempNodeList.iterator().next().getNm());
         res.put("node_tag", nodeTagList);
@@ -61,13 +58,10 @@ public class CodeNodeServiceImpl {
         if (tempNodeList.size() == 0) {
             return res;
         }
-        Object tempTags = cnRe.findTagByNm(tempNodeList.get(0).getNm());
-//        List<String> nodeTagList = getListFromJson(tempTags.toString());
+//        Object tempTags = cnRe.findTagByNm(tempNodeList.get(0).getNm());
         List<String> nodeTagList = new ArrayList<>();
-        nodeTagList.add("代码");
-        BaseNodeEntity a = tempNodeList.get(0);
-//        res.put("node_relation",relaList);
-
+        nodeTagList.add(TypeEnum.Code.getName());
+//        BaseNodeEntity a = tempNodeList.get(0);
         res.put("node_data", tempNodeList);
         res.put("node_Nm", tempNodeList.iterator().next().getNm());
         res.put("node_tag", nodeTagList);

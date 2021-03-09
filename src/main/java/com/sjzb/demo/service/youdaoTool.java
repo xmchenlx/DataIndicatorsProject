@@ -1,9 +1,9 @@
 package com.sjzb.demo.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sjzb.demo.model.*;
 import com.sjzb.demo.tool.SystemSetting;
 import com.sjzb.demo.tool.lxTool;
-import com.sjzb.demo.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -203,20 +203,34 @@ public class youdaoTool {
             jsonRes.put("def", validIsNull(tempb.getDef()));
             jsonDataSource.put("def", getCnByNm(dataSourceList.get(0), "Def"));
 
-            jsonRes.put("cyc", validIsNull(tempb.getCyc()));
+            Object cyc = (tempb.getCyc()==null?null:tempb.getCyc().get(0));
+            jsonRes.put("cyc", validIsNull(cyc.toString()));
             jsonDataSource.put("cyc", getCnByNm(dataSourceList.get(0), "Cyc"));
 
             jsonRes.put("attr", validIsNull(tempb.getAttr()));
             jsonDataSource.put("attr", getCnByNm(dataSourceList.get(0), "Attr"));
 
-            jsonRes.put("clbr", validIsNull(tempb.getClbr()));
-            jsonDataSource.put("clbr", getCnByNm(dataSourceList.get(0), "Clbr"));
+//            jsonRes.put("clbr", validIsNull(tempb.getClbr().toString()));
+//            jsonDataSource.put("clbr", getCnByNm(dataSourceList.get(0), "Clbr"));
 
             List<String> tempCd = new ArrayList<>();
             jsonRes.put("cd", tempCd);
             jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
             jsonRes.put("cmnt", tempb.getCmnt());
             jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
+            if (tempb.getIdx() != null) {
+                String qqqqqqq = tempb.getIdx().getClass().getName();
+                if (tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.ListValue") || tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.StringValue")) {
+                    String tempIdxRes = lxtool.getStringFromListValueOrStringValue(tempb.getIdx());
+                    tempb.setIdx(tempIdxRes);
+                }
+            }
+            jsonRes.put("idx", tempb.getIdx());
+            jsonDataSource.put("idx", getCnByNm(dataSourceList.get(0), "Idx"));
+            jsonRes.put("snstv", tempb.getSnstv());
+            jsonDataSource.put("snstv", getCnByNm(dataSourceList.get(0), "Snstv"));
+            jsonRes.put("meta", tempb.getSnstv());
+            jsonDataSource.put("meta", getCnByNm(dataSourceList.get(0), "Meta"));
 
             jsonResult.put("res", jsonRes);
             jsonResult.put("datasource", jsonDataSource);
@@ -284,7 +298,7 @@ public class youdaoTool {
         //待替换的内容为结点信息： ${Jsongraph.nodeList}  关系信息：${Jsongraph.linksList}
         res = res.replace("${Jsongraph.nodeList}", lxtool.convertListToJsonString(nodeJson));
         res = res.replace("${Jsongraph.linksList}", lxtool.convertListToJsonString(linksJson));
-        res = res.replace("${Jsongraph.title}", "结点关系");
+        res = res.replace("${Jsongraph.title}", "关系链");
         return res;
     }
 
@@ -325,10 +339,10 @@ public class youdaoTool {
      * @Return
      * @Description: 将查找的信息组成有道划词的显示格式
      */
-    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation) {
+    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation,String sessionId) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
             lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
-            return getUnkown(queryKey);
+            return getUnkown(queryKey,sessionId);
         }
         //根据传递的类名nodeType 实例化List<XXX>
         List<?> nodeList = (List<?>) oriNodeList;
@@ -339,7 +353,7 @@ public class youdaoTool {
 
         if (nodeList.size() == 0) {
             lxtool.soutLog("结果", queryKey, "数据库没有找到划词的节点或关系");
-            return getUnkown(queryKey);
+            return getUnkown(queryKey,sessionId);
         }
 
         if ("true".equals(isNewPage)) {
@@ -350,7 +364,7 @@ public class youdaoTool {
 
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
         String res = "";
-        res += "<p  class='listText'><a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&ist=true' >" + "[点我打开新网页查看更多]" + "</a></p>";
+        res += "<p  class='listText'><a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey +"&sqk="+nodeTagList.get(0).replace("Optional","") + "&ist=true' >" + "[点我打开新网页查看更多]" + "</a></p>";
 
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
@@ -404,7 +418,7 @@ public class youdaoTool {
                         getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
 
             }
-            res += lxtool.writeTempNote("数据元缺失");
+//            res += lxtool.writeTempNote("数据元缺失");
 
             res += "</pre>";
 
@@ -429,7 +443,7 @@ public class youdaoTool {
                         getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + (tempb.getCl() == null ? "/" : tempb.getCl()) + "</span><br/>";
 
             }
-            res += lxtool.writeTempNote("数据元缺失");
+//            res += lxtool.writeTempNote("数据元缺失");
             res += "</pre>";
         } else if (nodeType == "DataModelOfIBMNodeEntity") {
             res += "<pre>";
@@ -452,7 +466,7 @@ public class youdaoTool {
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cmnt") + "：</span><span class='infotext'>" + (tempb.getMycmnt() == null ? "/" : tempb.getCmnt()) + "</span><br/>";
 
             }
-        } else if (nodeType == "IndicatorsNodeEntity") {
+        } else if (nodeType.equals("IndicatorsNodeEntity")) {
             res += "<pre>";
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
@@ -467,6 +481,7 @@ public class youdaoTool {
                     res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
                 }
 
+
 //                获取Nm属性的中文名称与Nm值
                 res += "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Clbr") + "：</span><span class='infotext'>" + (tempb.getClbr() == null ? "/" : tempb.getClbr()) + "</span><br/>";
@@ -476,6 +491,8 @@ public class youdaoTool {
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Fmt") + "：</span><span class='infotext'>" + (tempb.getFmt() == null ? "/" : tempb.getFmt()) + "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo()) ? "/" : tempb.getNo()) + "</span><br/>";
                 res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Unt") + "：</span><span class='infotext'>" + (tempb.getUnt() == null ? "/" : tempb.getUnt()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Idx") + "：</span><span class='infotext'>" + (tempb.getIdx() == null ? "/" : tempb.getIdx().toString()) + "</span><br/>";
+                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Snstv") + "：</span><span class='infotext'>" + (tempb.getSnstv() == null ? "/" : tempb.getSnstv()) + "</span><br/>";
 
             }
         } else {
@@ -546,8 +563,10 @@ public class youdaoTool {
      * @Return
      * @Description: 未查询到结果时返回的xml信息
      */
-    public String getUnkown(String queryKey) {
+    public String getUnkown(String queryKey,String sessiondId) {
         String res = "<p>查询不到有关<span style='color:red'>" + queryKey + "</span>的信息，请尝试调整一下划词范围吧！</p>";
+        res += "或者<a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsetting?sid=" + sessiondId + "' >※" + "点我设置查询范围" + "</a><hr>";
+
         StringBuffer youdaodictSb = new StringBuffer("<?xml version=\"1.0\" encoding=\"GB2312\"?><yodaodict>");
         youdaodictSb.append("<return-phrase><![CDATA[")
                 .append(queryKey)

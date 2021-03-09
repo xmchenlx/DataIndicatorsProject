@@ -31,14 +31,6 @@ public class BasicClassNodeServiceImpl {
 
     private lxTool lxtool = new lxTool();
 
-//    public List<BasicAndClassWordEntity> selectBCWInfoByNm(String querykey){
-//        List<BasicAndClassWordEntity> bacwList = bcwRe.findByNm(querykey);
-////        if(bacwList.size() !=0){
-////            bacwList
-////        }
-//        return bacwList;
-//    }
-
     /**
      * @Author: chenlx
      * @Date: 2021-01-27 15:24:16
@@ -68,21 +60,18 @@ public class BasicClassNodeServiceImpl {
     }
 
 
+    /**
+     *
+     * @Author: chenlx
+     * @Date: 2021-03-04 14:46:01
+     * @Params: null
+     * @Return
+     * @Description: 精确查询
+     */
     public Map<String, Object> selectBCWInfoByNm(String querykey, String bnm) {
         Map<String, Object> res = new HashMap<>();
         List<BasicAndClassWordEntity> t;
-        //版本迭代， 暂时只需要先找出自己本身的信息，目前先注释处理 2021-2-4 14:23
-//        if (!bnm.equals(null)) {
-//            t = bcwRe.findBasicAndClassWordEntitiesByNm(querykey, bnm);
-//        } else {
-//            t = bcwRe.findBasicAndClassWordEntitiesByNm(querykey);
-//
-//        }
         t = bcwRe.findBasicAndClassWordEntitiesByNm(querykey);
-
-//        List<BasicAndClassWordEntity> t = Convert.convert(new TypeReference<List<BasicAndClassWordEntity>>() {
-//        }, ttempNodeList);
-
         res.put("len", t.size());
         if (t.size() == 0) {
             return res;
@@ -90,7 +79,6 @@ public class BasicClassNodeServiceImpl {
         String selectedNm = t.iterator().next().getNm();
         Object tempTags = bcwRe.findTagByNm(t.get(0).getNm());
         List<String> nodeTagList = getListFromJson(tempTags.toString());
-//        List<Object> relationList =  reRe.findAbbrRelationByNm(selectedNm);
         List<Object> relationList =  new ArrayList<>(),tempList = new ArrayList<>();
 
         tempList.add(reRe.findAbbrRelationByNm(selectedNm));
@@ -102,8 +90,6 @@ public class BasicClassNodeServiceImpl {
         }
 
         res.put("node_relation",lxtool.ConvertPathValueToRelationshipMap(relationList,selectedNm));
-
-//        res.put("node_relation",lxtool.tempConvertPathValueToRelationshipMap(relationList));
         res.put("node_data", t);
         res.put("node_Nm", selectedNm);
         res.put("node_tag", nodeTagList);

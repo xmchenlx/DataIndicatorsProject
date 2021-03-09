@@ -4,7 +4,9 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.neo4j.driver.internal.value.ListValue;
 import org.neo4j.driver.internal.value.PathValue;
+import org.neo4j.driver.internal.value.StringValue;
 import org.neo4j.driver.types.Path;
 
 import java.util.*;
@@ -37,6 +39,23 @@ public class lxTool {
             return Convert.convert(List.class, permissions);
         }
         return null;
+    }
+
+    public String getStringFromListValueOrStringValue(Object olist) {
+        String res = "";
+
+        if (olist.getClass().getName().equals("org.neo4j.driver.internal.value.StringValue")) {
+            StringValue a = (StringValue)olist;
+
+            return a.asString();
+        }
+        ListValue lvlist = (ListValue) olist;
+        for (int i = 0; i < lvlist.size(); i++) {
+            if (i != 0) res += "、";
+            res += lvlist.get(i);
+        }
+        res = res.replace("\"", "");
+        return res;
     }
 
     /**
@@ -95,9 +114,9 @@ public class lxTool {
             return "</div></div><script src=\"./weblibs.js\"></script><script src=\"./huaci.js\"></script></body></html>";
         }
         if (key.equals("<html-handlebars>")) {
-            return "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>${title}</title>     ${style}</head><body><div id=\"container\"></div> ${loadScript}<script type=\"text/x-handlebars-template\" id=\"template-user\"><pre><h1 id=\"title\">{{res.nm}}</h1>{{{showBaseProperty res datasource}}} <hr>            {{{mixCdCmnt res.cd res.cmnt}}}</pre></script> ${chartModule} <script>        Handlebars.registerHelper(\"mixCdCmnt\", function ($cd, $cmnt) {            let $res = '';            for (let $i = 0; $i< $cd.length; $i++) {                $res += '<br><strong>' + $cd[$i] + '</strong>\\t' + $cmnt[$i]            }            return $res;        });Handlebars.registerHelper(\"showBaseProperty\",function($res,$datasource){            let $r= '';            for(let obj in $res){  if(obj=='cd') continue;            $r+= '<span class=\"infotitle\">'+$datasource[obj] +'：</span><span class=\"infotext\">'+$res[obj]+'</span><br>';            }            return $r;        });        var jsoninfo = ${jsoninfo}   ;           var $container = $('#container');        var source = $('#template-user').html();        var template = Handlebars.compile(source);       var html2 = template(jsoninfo);       $container.html(html2);</script></body></html>";
+            return "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>${title}</title>     ${style}</head><body><div id=\"container\"></div> ${loadScript}<script type=\"text/x-handlebars-template\" id=\"template-user\"><pre><h1 id=\"title\">{{res.nm}}</h1>{{{showBaseProperty res datasource}}} <hr>            {{{mixCdCmnt res.cd res.cmnt}}}</pre></script> ${chartModule} <script>        Handlebars.registerHelper(\"mixCdCmnt\", function ($cd, $cmnt) {            let $res = '';            for (let $i = 0; $i< $cd.length; $i++) {                $res += '<br><strong>' + $cd[$i] + '</strong>\\t' + $cmnt[$i]            }            return $res;        });Handlebars.registerHelper(\"showBaseProperty\",function($res,$datasource){            let $r= '';            for(let obj in $res){  if(obj=='cd') continue; if(obj=='cmnt') continue;            $r+= '<span class=\"infotitle\">'+$datasource[obj] +'：</span><span class=\"infotext\">'+$res[obj]+'</span><br>';            }            return $r;        });        var jsoninfo = ${jsoninfo}   ;           var $container = $('#container');        var source = $('#template-user').html();        var template = Handlebars.compile(source);       var html2 = template(jsoninfo);       $container.html(html2);</script></body></html>";
         }
-        if(key.equals("<settingPage>")){
+        if (key.equals("<settingPage>")) {
             return "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0\"><title>类别顺序自定义</title><style>#main{margin:0 auto;width:80%}#itembox div{border:1px solid gray;list-style:none;padding:5px;margin:5px;max-width:50vw}</style></head><body><div id=\"main\"><p>勾选以下选项代表是否查询、拖拽选项进行顺序排序。</p><div id=\"itembox\"></div><input type=\"button\"value=\"提交设置\"onclick=\"savingSetting()\"style=\"margin: 0 auto;\"></input></div><script>var dataClassInfo=${javaDataReplace};function loadDataClass(){let res='';let items=dataClassInfo.order;let index=0;items.forEach(obj=>{res+='<div draggable=\"true\"><input  type=\"checkbox\" id=\"di'+obj+'\">'+(++index)+'、'+dataClassInfo.data_ch[obj]+'</input></div>'});document.getElementById('itembox').innerHTML=res;dataClassInfo.select.forEach(se=>{document.getElementById('di'+se).checked=true})};function dragg(){var box=document.querySelector('#itembox').getElementsByTagName('div');var content=null;for(let i=0;i<box.length;i++){box[i].ondragstart=function(){content=this};box[i].ondragover=function(){event.preventDefault()};box[i].ondrop=function(){if(content!=null&&content!=this){var temp=document.createElement(\"div\");document.querySelector(\"#itembox\").replaceChild(temp,this);document.querySelector(\"#itembox\").replaceChild(this,content);document.querySelector(\"#itembox\").replaceChild(content,temp)}}}};function savingSetting(){let newBox=document.querySelector('#itembox').getElementsByTagName('div');let newOrder=[],newSelect=[];for(let i=0;i<newBox.length;i++){let no=newBox[i].getElementsByTagName('input')[0];let sid=no.id.replace('di','');let scheck=no.checked;newOrder.push(sid);if(scheck==true)newSelect.push(sid)}saveToLocalstorage(newOrder,newSelect)}function saveToLocalstorage(newOrder,newSelect){dataClassInfo.select=newSelect;dataClassInfo.order=newOrder;dataClassInfo.jsessionid = '${JSESSIONID}';var httpRequest=new XMLHttpRequest();let url='http://192.168.42.187:6868/fsettingUpload';httpRequest.open('POST',url,true);httpRequest.setRequestHeader(\"Content-type\",\"application/x-www-form-urlencoded\");httpRequest.send('body='+JSON.stringify(dataClassInfo));httpRequest.onreadystatechange=function(){if(httpRequest.readyState==4&&httpRequest.status==200){var json=httpRequest.responseText;if(json=='FINISHED')alert('设置已保存。')}}}loadDataClass();dragg();</script></body></html>";
         }
 //        if(key.equals("<html-handlebars-after>"));

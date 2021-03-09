@@ -2,6 +2,7 @@ package com.sjzb.demo.service;
 
 import com.sjzb.demo.Repository.Node.IndicatorsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationIndicatorNodeRepository;
+import com.sjzb.demo.model.TypeEnum;
 import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.IndicatorsNodeEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +39,13 @@ public class IndicatorsNodeServiceImpl {
      */
     public Map<String, Object> selectIndicatorsLike(String querykey) {
         Map<String, Object> res = new HashMap<>();
-//        List<Object> a = ibmDMRe.findDataModelOfIBMNodeEntityByNmLike(querykey);
         List<IndicatorsNodeEntity> t = indicateRe.findIndicatorsNodeEntityByNmLike(querykey);
-//        System.out.println(t);
-
         res.put("len", t.size());
         if (t.size() == 0) {
             return res;
         }
         List<String> nodeTagList = new ArrayList<>();
-        nodeTagList.add("指标"); //updated in 2021-02-04 15:19
-
+        nodeTagList.add(TypeEnum.IndicatorsNode.getName()); //updated in 2021-02-04 15:19
         res.put("node_data", t);
         res.put("node_Nm", t.iterator().next().getNm());
         res.put("node_tag", nodeTagList);
@@ -69,7 +66,8 @@ public class IndicatorsNodeServiceImpl {
         }
         String selectedNm = t.iterator().next().getNm();
         List<String> nodeTagList = new ArrayList<>();
-        nodeTagList.add("指标"); //updated in 2021-02-04 15:19
+        nodeTagList.add(TypeEnum.IndicatorsNode.getName()); //updated in 2021-02-04 15:19
+//        -------------------查询关系------------------------
         List<Object> relationList = new ArrayList<>(), tempList = new ArrayList<>();
 //        针对不同的关系查询类型，循环加入数组以解决数据嵌套的问题（A{0{0、1}、1{0、1}})
         tempList.add(reIndicateRe.findPSRelationByNmOut(selectedNm));
@@ -82,14 +80,13 @@ public class IndicatorsNodeServiceImpl {
                 relationList.add(temp.get(j));
             }
         }
-
         res.put("node_relation", lxtool.ConvertPathValueToRelationshipMap(relationList, selectedNm));
+//        ----------------------------查询关系结束-----------------------
         res.put("node_data", t);
         res.put("node_Nm", selectedNm);
         res.put("node_tag", nodeTagList);
         res.put("node_type", "IndicatorsNodeEntity");
         res.put("len", t.size());
         return res;
-
-    }
+        }
 }
