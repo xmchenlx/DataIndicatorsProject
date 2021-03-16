@@ -17,8 +17,8 @@ public enum TypeEnum {
     StandardOfData("基础数据标准", 5),
     EntityOfDataModel("数据模型-实体",6),
     PropertyOfDataModel("数据模型-属性",7),
+    JsPackage("JS库包",997),
     DataSource("数据元", 998);
-
 
     private String name;
     private Integer index;

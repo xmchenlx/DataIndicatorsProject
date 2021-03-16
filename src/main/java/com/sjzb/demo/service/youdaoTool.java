@@ -2,8 +2,10 @@ package com.sjzb.demo.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sjzb.demo.model.*;
-import com.sjzb.demo.tool.SystemSetting;
-import com.sjzb.demo.tool.lxTool;
+import com.sjzb.demo.service.Node.JsStorageServiceImpl;
+import com.sjzb.demo.service.Node.dataSourceServiceImpl;
+import com.sjzb.demo.config.SystemSetting;
+import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,9 @@ public class youdaoTool {
 
     @Autowired
     dataSourceServiceImpl dsService;
+
+    @Autowired
+    JsStorageServiceImpl jsService;
 
     private SystemSetting sysTool = new SystemSetting();
 
@@ -203,7 +208,7 @@ public class youdaoTool {
             jsonRes.put("def", validIsNull(tempb.getDef()));
             jsonDataSource.put("def", getCnByNm(dataSourceList.get(0), "Def"));
 
-            Object cyc = (tempb.getCyc()==null?null:tempb.getCyc().get(0));
+            Object cyc = (tempb.getCyc() == null ? null : tempb.getCyc().get(0));
             jsonRes.put("cyc", validIsNull(cyc.toString()));
             jsonDataSource.put("cyc", getCnByNm(dataSourceList.get(0), "Cyc"));
 
@@ -239,10 +244,12 @@ public class youdaoTool {
 
         html = lxtool.getWebCode("<html-handlebars>");
         html = html.replace("${title}", queryKey + " -查询结果 - 数据指标项目");
-        String loadscript = "<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>"
-                + "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>"
-                + lxtool.getScriptCdnUrl("script-echart")
-                + "";
+        String loadscript ="";
+        loadscript +="<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>";
+//        JsStorageEntity jse = jsService.selectDataByNm("handlebars");
+//        loadscript += "<script>"+ jsService.selectDataByNm("handlebars").getCd() +"</script>";
+        loadscript += "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>";
+        loadscript += lxtool.getScriptCdnUrl("script-echart");
 
 
         html = html.replace("${loadScript}", loadscript);
@@ -339,10 +346,10 @@ public class youdaoTool {
      * @Return
      * @Description: 将查找的信息组成有道划词的显示格式
      */
-    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation,String sessionId) {
+    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation, String sessionId) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
             lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
-            return getUnkown(queryKey,sessionId);
+            return getUnkown(queryKey, sessionId);
         }
         //根据传递的类名nodeType 实例化List<XXX>
         List<?> nodeList = (List<?>) oriNodeList;
@@ -353,7 +360,7 @@ public class youdaoTool {
 
         if (nodeList.size() == 0) {
             lxtool.soutLog("结果", queryKey, "数据库没有找到划词的节点或关系");
-            return getUnkown(queryKey,sessionId);
+            return getUnkown(queryKey, sessionId);
         }
 
         if ("true".equals(isNewPage)) {
@@ -364,7 +371,6 @@ public class youdaoTool {
 
         StringBuffer customTranslationSb = new StringBuffer("<custom-translation>");
         String res = "";
-        res += "<p  class='listText'><a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey +"&sqk="+nodeTagList.get(0).replace("Optional","") + "&ist=true' >" + "[点我打开新网页查看更多]" + "</a></p>";
 
 //        当为代码节点时
         if (nodeType == "CodeNodeEntity") {
@@ -404,16 +410,18 @@ public class youdaoTool {
                 //LIKE模糊查询的结点个数遍历
                 BasicAndClassWordEntity tempb = null;
                 if (nodeList.iterator().hasNext()) tempb = (BasicAndClassWordEntity) nodeList.get(i);
-                //遍历节点的标签
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
-                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+                res += "<span  class='infotext'>";
 //                遍历标签名称
                 for (int x = 0; x < nodeTagList.size(); x++) {
                     if (x != 0) res += "、";
-                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                    res += "[" + nodeTagList.get(x).replace("Optional", "").trim() + "]";
                 }
+                res += "\t[访问"+(tempb.getCnt()==null?0:tempb.getCnt())+"次]\t";
+                res += "<a style='color:orange' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&sqk=" + nodeTagList.get(0).replace("Optional", "") + "&ist=true' >" + "[更多]" + "</a>";
+
+//
 //                获取Nm属性的中文名称与Nm值
-                res += "</span><br/>";
+                res += "</span><br/><br/>";
                 res += "<span class='infotitle'>" +
                         getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
 
@@ -468,31 +476,34 @@ public class youdaoTool {
             }
         } else if (nodeType.equals("IndicatorsNodeEntity")) {
             res += "<pre>";
+
             for (int i = 0; i < nodeList.size(); i++) {
                 //LIKE模糊查询的结点个数遍历
                 IndicatorsNodeEntity tempb = null;
                 if (nodeList.iterator().hasNext()) tempb = (IndicatorsNodeEntity) nodeList.get(i);
                 //遍历节点的标签
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
-                res += "<span class='infotitle'>来源：</span><span  class='infotext'>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Nm") + "：</span><span class='infotext'>" + tempb.getNm() + "</span><br>";
+                res += "<span  class='infotext'>";
 //                遍历标签名称
                 for (int x = 0; x < nodeTagList.size(); x++) {
                     if (x != 0) res += "、";
-                    res += "《" + nodeTagList.get(x).replace("Optional", "").trim() + "》";
+                    res += "[" + nodeTagList.get(x).replace("Optional", "").trim() + "]";
                 }
+                res += "\t[访问"+(tempb.getCnt()==null?0:tempb.getCnt())+"次]\t";
+                res += "<a style='color:orange' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&sqk=" + nodeTagList.get(0).replace("Optional", "") + "&ist=true' >" + "[更多]" + "</a>";
 
 
 //                获取Nm属性的中文名称与Nm值
-                res += "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Clbr") + "：</span><span class='infotext'>" + (tempb.getClbr() == null ? "/" : tempb.getClbr()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Attr") + "：</span><span class='infotext'>" + (tempb.getAttr() == null ? "/" : tempb.getAttr()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cyc") + "：</span><span class='infotext'>" + (tempb.getCyc() == null ? "/" : tempb.getCyc()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Def") + "：</span><span class='infotext'>" + (tempb.getDef() == null ? "/" : tempb.getDef()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Fmt") + "：</span><span class='infotext'>" + (tempb.getFmt() == null ? "/" : tempb.getFmt()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo()) ? "/" : tempb.getNo()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Unt") + "：</span><span class='infotext'>" + (tempb.getUnt() == null ? "/" : tempb.getUnt()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Idx") + "：</span><span class='infotext'>" + (tempb.getIdx() == null ? "/" : tempb.getIdx().toString()) + "</span><br/>";
-                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Snstv") + "：</span><span class='infotext'>" + (tempb.getSnstv() == null ? "/" : tempb.getSnstv()) + "</span><br/>";
+                res += "</span><br/><br/>";
+                res += /*"<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Clbr") + "：</span>*/"<span class='infotext'>" + (tempb.getClbr() == null ? "/" : tempb.getClbr()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Attr") + "：</span><span class='infotext'>" + (tempb.getAttr() == null ? "/" : tempb.getAttr()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Cyc") + "：</span><span class='infotext'>" + (tempb.getCyc() == null ? "/" : tempb.getCyc()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Def") + "：</span><span class='infotext'>" + (tempb.getDef() == null ? "/" : tempb.getDef()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Fmt") + "：</span><span class='infotext'>" + (tempb.getFmt() == null ? "/" : tempb.getFmt()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "No") + "：</span><span class='infotext'>" + ("".equals(tempb.getNo()) ? "/" : tempb.getNo()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Unt") + "：</span><span class='infotext'>" + (tempb.getUnt() == null ? "/" : tempb.getUnt()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Idx") + "：</span><span class='infotext'>" + (tempb.getIdx() == null ? "/" : tempb.getIdx().toString()) + "</span><br/>";
+//                res += "<span class='infotitle'>" + getCnByNm(dataSourceList.get(0), "Snstv") + "：</span><span class='infotext'>" + (tempb.getSnstv() == null ? "/" : tempb.getSnstv()) + "</span><br/>";
 
             }
         } else {
@@ -563,7 +574,7 @@ public class youdaoTool {
      * @Return
      * @Description: 未查询到结果时返回的xml信息
      */
-    public String getUnkown(String queryKey,String sessiondId) {
+    public String getUnkown(String queryKey, String sessiondId) {
         String res = "<p>查询不到有关<span style='color:red'>" + queryKey + "</span>的信息，请尝试调整一下划词范围吧！</p>";
         res += "或者<a target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsetting?sid=" + sessiondId + "' >※" + "点我设置查询范围" + "</a><hr>";
 

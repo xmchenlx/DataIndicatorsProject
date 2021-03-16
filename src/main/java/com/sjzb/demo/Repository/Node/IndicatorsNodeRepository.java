@@ -21,5 +21,9 @@ public interface IndicatorsNodeRepository extends Neo4jRepository<IndicatorsNode
     List<IndicatorsNodeEntity> findIndicatorsNodeEntityByNm(String Nm);
 
 
+    @Query("MATCH (n:`指标`)  where n.Nm=$Nm SET n.Cnt = $Cnt return n ")
+    Object setNewCount(@Param("Nm") String Nm,@Param("Cnt") Integer Cnt);
+
+
 
 }

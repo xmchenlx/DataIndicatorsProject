@@ -1,10 +1,11 @@
-package com.sjzb.demo.service;
+package com.sjzb.demo.service.Node;
 
 import com.sjzb.demo.Repository.Node.IndicatorsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationIndicatorNodeRepository;
-import com.sjzb.demo.model.TypeEnum;
-import com.sjzb.demo.tool.lxTool;
 import com.sjzb.demo.model.IndicatorsNodeEntity;
+import com.sjzb.demo.model.TypeEnum;
+import com.sjzb.demo.service.StatisticsEntity.GeneralRedisServiceImpl;
+import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,12 @@ public class IndicatorsNodeServiceImpl {
 
     private lxTool lxtool = new lxTool();
 
+    //Redis服务实现
+//    private GeneralRedisServiceImpl redisServiceImpl = new GeneralRedisServiceImpl();
+
+    @Autowired
+    private GeneralRedisServiceImpl redisServiceImpl;
+
     /**
      * @Author: chenlx
      * @Date: 2021-01-27 15:24:16
@@ -51,8 +58,18 @@ public class IndicatorsNodeServiceImpl {
         res.put("node_tag", nodeTagList);
         res.put("node_type", "IndicatorsNodeEntity");
         res.put("len", t.size());
+        if(t.size() == 1){
+            addingRequestCount(res.get("node_Nm").toString(),t.get(0).getCnt());
+        }
         return res;
+    }
 
+    public void addingRequestCount(String selectedNm,Integer nodeCnt){
+        Integer nowClickCount = 1;
+        if (nodeCnt != null && nodeCnt > 0) {
+            nowClickCount += nodeCnt;
+        }
+        Object a = indicateRe.setNewCount(selectedNm, nowClickCount);
     }
 
 
@@ -87,6 +104,15 @@ public class IndicatorsNodeServiceImpl {
         res.put("node_tag", nodeTagList);
         res.put("node_type", "IndicatorsNodeEntity");
         res.put("len", t.size());
+//       精确访问某一个节点需要， 统计访问次数，先载入缓存（60分钟）
+//        redisServiceImpl.InsertOrUpdateRequestNodeCount(selectedNm);
+        addingRequestCount(selectedNm,t.get(0).getCnt());
+//        Integer nowClickCount = 1,  nodeCnt = t.get(0).getCnt();
+//        if (nodeCnt != null && nodeCnt > 0) {
+//            nowClickCount += nodeCnt;
+//        }
+//        Object a = indicateRe.setNewCount(selectedNm, nowClickCount);
         return res;
-        }
+    }
+
 }

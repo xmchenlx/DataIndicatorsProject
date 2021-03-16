@@ -1,4 +1,4 @@
-package com.sjzb.demo.tool;
+package com.sjzb.demo.util;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.json.JSONUtil;
@@ -91,6 +91,8 @@ public class lxTool {
             return "https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js";
         } else if (key.equals("handlebars")) {
             return "https://cdn.bootcdn.net/ajax/libs/handlebars.js/4.7.6/handlebars.min.js";
+        } else if(key.equals("handlebars_local")){
+            return "";
         } else if (key.equals("script-echart")) {
             return "<script src=\"https://cdn.bootcdn.net/ajax/libs/echarts/5.0.1/echarts.min.js\"></script>";
         } else {
@@ -105,7 +107,7 @@ public class lxTool {
 
         }
         if (key == "<list-style>") {
-            return "<style>.listText{color:darkred; font-size:16px;margin:0;padding:0;} span{display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;} .listText:hover{color:coral;font-weight:bold;cursor:pointer} .listText:active{color:darksalmon;}</style>";
+            return "<style>#tinytext{font-size:10px}.listText{color:darkred; font-size:16px;margin:0;padding:0;} span{display:inline-block;vertical-align:middle;white-space:normal;word-break:break-all;} .listText:hover{color:coral;font-weight:bold;cursor:pointer} .listText:active{color:darksalmon;}</style>";
         }
         if (key == "<newHtml-pre>") {
             return "<!DOCTYPE html><html lang=\"zh-cn\"><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\"content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no\" /><meta name=\"format-detection\" content=\"telephone=no\"><title>${replaceTitle}</title><link rel=\"stylesheet\" type=\"text/css\" href=\"./iconfont.css\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"./huaci.css\" /></head><body><div id=\"doc\"><div id=\"main\">";
@@ -136,7 +138,7 @@ public class lxTool {
         int min = cla.get(Calendar.MINUTE);
         int sec = cla.get(Calendar.SECOND);
         String _now = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
-        String res = "\n\n于" + _now + " 收到【" + type + "】请求，关键词：" + key;
+        String res = "\n\n于" + _now + " 进行【" + type + "】，关键词：" + key;
         if (note != null) res += "，备注：" + note;
         System.out.println(res);
     }

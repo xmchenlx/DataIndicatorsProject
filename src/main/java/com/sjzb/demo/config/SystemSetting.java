@@ -1,4 +1,4 @@
-package com.sjzb.demo.tool;
+package com.sjzb.demo.config;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;

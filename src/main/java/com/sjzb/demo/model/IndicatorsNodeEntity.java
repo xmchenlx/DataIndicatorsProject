@@ -58,13 +58,29 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
     private String meta;
 
 
+    @Property(name = "Cnt")
+    private Integer cnt;
 
 
     public IndicatorsNodeEntity() {
     }
 
-
-
+    public IndicatorsNodeEntity(String nm, String unt, String src, String attr, Object clbr, List<String> cyc, String def, String fmt, String no, List<String> us, String snstv, Object idx, String meta, List<IndicatorsNodeEntity> rel) {
+        this.nm = nm;
+        this.unt = unt;
+        this.src = src;
+        this.attr = attr;
+        this.clbr = clbr;
+        this.cyc = cyc;
+        this.def = def;
+        this.fmt = fmt;
+        this.no = no;
+        this.us = us;
+        this.snstv = snstv;
+        this.idx = idx;
+        this.meta = meta;
+        this.rel = rel;
+    }
 
     @Override
     public String getSrc() {
@@ -91,4 +107,6 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
 
     @Relationship(type = "派生")
     private List<IndicatorsNodeEntity> rel = new ArrayList<>();
+
+
 }

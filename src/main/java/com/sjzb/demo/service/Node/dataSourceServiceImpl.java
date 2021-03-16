@@ -1,4 +1,4 @@
-package com.sjzb.demo.service;
+package com.sjzb.demo.service.Node;
 
 import com.sjzb.demo.Repository.Node.dataSourceRepository;
 import com.sjzb.demo.model.DataSourceEntity;

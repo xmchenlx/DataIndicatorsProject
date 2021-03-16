@@ -1,8 +1,8 @@
-package com.sjzb.demo.service;
+package com.sjzb.demo.service.Node;
 
 import com.sjzb.demo.Repository.Node.BasicClassWordsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationBasicWordRepository;
-import com.sjzb.demo.tool.lxTool;
+import com.sjzb.demo.util.lxTool;
 import com.sjzb.demo.model.BasicAndClassWordEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.sjzb.demo.tool.lxTool.getListFromJson;
+import static com.sjzb.demo.util.lxTool.getListFromJson;
 
 /**
  * @ProgramName: demo_youdao
@@ -55,8 +55,19 @@ public class BasicClassNodeServiceImpl {
         res.put("node_tag", nodeTagList);
         res.put("node_type", "BasicAndClassWordEntity");
         res.put("len", t.size());
+        if(t.size() == 1){
+            addingRequestCount(res.get("node_Nm").toString(),t.get(0).getCnt());
+        }
         return res;
 
+    }
+
+    public void addingRequestCount(String selectedNm,Integer nodeCnt){
+        Integer nowClickCount = 1;
+        if (nodeCnt != null && nodeCnt > 0) {
+            nowClickCount += nodeCnt;
+        }
+        Object a = bcwRe.setNewCount(selectedNm, nowClickCount);
     }
 
 
@@ -95,6 +106,7 @@ public class BasicClassNodeServiceImpl {
         res.put("node_tag", nodeTagList);
         res.put("node_type", "BasicAndClassWordEntity");
         res.put("len", t.size());
+        addingRequestCount(selectedNm,t.get(0).getCnt());
         return res;
 
     }

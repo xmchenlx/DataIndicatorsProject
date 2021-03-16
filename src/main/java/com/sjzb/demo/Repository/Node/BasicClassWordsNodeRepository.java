@@ -30,4 +30,7 @@ public interface BasicClassWordsNodeRepository extends Neo4jRepository<BasicAndC
     @Query("match (n:`基本词类词`)  where n.Nm = $Nm return labels(n)")
     Object findTagByNm(@Param("Nm") String Nm);
 
+    @Query("MATCH (n:`基本词类词`)  where n.Nm=$Nm SET n.Cnt = $Cnt return n ")
+    Object setNewCount(@Param("Nm") String Nm,@Param("Cnt") Integer Cnt);
+
 }

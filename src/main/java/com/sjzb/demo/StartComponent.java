@@ -1,6 +1,6 @@
 package com.sjzb.demo;
 
-import com.sjzb.demo.tool.SystemSetting;
+import com.sjzb.demo.config.SystemSetting;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -21,7 +21,7 @@ public class StartComponent implements ApplicationRunner {
     public void run(ApplicationArguments args)
             throws Exception {
         System.out.println("【配置词典】即将打开有道词典代理设置外部程序来链接数据指标词典数据库。");
-        sysTool.runYodaoDictProxySetting();
+//        sysTool.runYodaoDictProxySetting();
 
     }
 }

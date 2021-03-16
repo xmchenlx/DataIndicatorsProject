@@ -6,8 +6,10 @@ import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.TypeEnum;
 import com.sjzb.demo.model.UserOrderEntity;
 import com.sjzb.demo.service.*;
-import com.sjzb.demo.tool.SystemSetting;
-import com.sjzb.demo.tool.lxTool;
+import com.sjzb.demo.service.Node.*;
+import com.sjzb.demo.config.SystemSetting;
+import com.sjzb.demo.service.StatisticsEntity.GeneralRedisServiceImpl;
+import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,8 +76,16 @@ public class AllController {
             getWord(request, response);
         } else if (uri.equals("/fsetting")) {
             getWordSetting(request, response);
+        } else if(uri.equals("/r2n")){
+            doProcessRedisToNeo4j();
         }
 
+
+    }
+
+    protected void doProcessRedisToNeo4j(){
+        GeneralRedisServiceImpl ttsi = new GeneralRedisServiceImpl();
+        ttsi.InsertOrUpdateRequestNodeCountToNeo4j();
     }
 
     protected UserOrderEntity generateDefaultSessionInfo(HttpSession session) {
@@ -92,6 +102,9 @@ public class AllController {
             dataCh.put(TypeEnum.Report.getIndex(), TypeEnum.Report.getName());// "报表/报文"
             dataCh.put(TypeEnum.DataModelOfIBMNode.getIndex(), TypeEnum.DataModelOfIBMNode.getName());//"IBM数据模型分类"
             dataCh.put(TypeEnum.StandardOfData.getIndex(), TypeEnum.StandardOfData.getName()); //基数标准
+//            dataCh.put(TypeEnum.EntityOfDataModel.getIndex(), TypeEnum.EntityOfDataModel.getName()); //基数标准
+//            dataCh.put(TypeEnum.PropertyOfDataModel.getIndex(), TypeEnum.PropertyOfDataModel.getName()); //基数标准
+
             uoe.setData_ch(dataCh);
         }
 
@@ -212,7 +225,7 @@ public class AllController {
                         BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
                         String nodeName = nodeData.getNm();
                         count++;
-                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + nodeTags.get(0).replace("Optional","") + "&ist=true' >" + nodeName + "</a></p>";
+                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + nodeTags.get(0).replace("Optional","") + "&ist=true' >" + nodeName + "</a><span id=\"tinytext\">["+nodeTag+"]</span></p>";
                     }
                     dataString += "<br/>";
                     if (keys.hasNext())

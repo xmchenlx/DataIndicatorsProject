@@ -32,7 +32,8 @@ public class BasicAndClassWordEntity extends BaseNodeEntity {
     @Property(name = "Cl")
     private String cl;
 
-
+    @Property(name = "Cnt")
+    private Integer cnt;
     public BasicAndClassWordEntity() {
     }
 
@@ -63,5 +64,10 @@ public class BasicAndClassWordEntity extends BaseNodeEntity {
     @Relationship(type = "abbr")
     private List<RelationShipBasicWordEntity> rel = new ArrayList<>();
 
-
+    public BasicAndClassWordEntity(String nm, String cl, Integer cnt, List<RelationShipBasicWordEntity> rel) {
+        this.nm = nm;
+        this.cl = cl;
+        this.cnt = cnt;
+        this.rel = rel;
+    }
 }

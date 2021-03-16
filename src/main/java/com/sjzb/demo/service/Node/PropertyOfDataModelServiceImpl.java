@@ -1,8 +1,8 @@
-package com.sjzb.demo.service;
+package com.sjzb.demo.service.Node;
 
 import com.sjzb.demo.Repository.Relationship.RelationDataModel;
 import com.sjzb.demo.model.PropertyOfDataModel;
-import com.sjzb.demo.tool.lxTool;
+import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
