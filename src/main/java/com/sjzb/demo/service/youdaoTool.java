@@ -1,10 +1,10 @@
 package com.sjzb.demo.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sjzb.demo.config.SystemSetting;
 import com.sjzb.demo.model.*;
 import com.sjzb.demo.service.Node.JsStorageServiceImpl;
 import com.sjzb.demo.service.Node.dataSourceServiceImpl;
-import com.sjzb.demo.config.SystemSetting;
 import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -208,15 +208,25 @@ public class youdaoTool {
             jsonRes.put("def", validIsNull(tempb.getDef()));
             jsonDataSource.put("def", getCnByNm(dataSourceList.get(0), "Def"));
 
-            Object cyc = (tempb.getCyc() == null ? null : tempb.getCyc().get(0));
+            Object cyc = (tempb.getCyc() == null ? "" : tempb.getCyc().get(0));
             jsonRes.put("cyc", validIsNull(cyc.toString()));
             jsonDataSource.put("cyc", getCnByNm(dataSourceList.get(0), "Cyc"));
 
             jsonRes.put("attr", validIsNull(tempb.getAttr()));
             jsonDataSource.put("attr", getCnByNm(dataSourceList.get(0), "Attr"));
 
-//            jsonRes.put("clbr", validIsNull(tempb.getClbr().toString()));
-//            jsonDataSource.put("clbr", getCnByNm(dataSourceList.get(0), "Clbr"));
+            String clbrStr = "";
+            //Clbr属性有的结点并没有这个属性，添加if判断以避免报错 --20210330
+            if (tempb.getClbr() != null) {
+                clbrStr = validIsNull(tempb.getClbr().toString().replace("\\", ""));
+
+                //判断是否有值
+
+                if (clbrStr.substring(0, 1).equals("\""))
+                    clbrStr = clbrStr.substring(1, clbrStr.length() - 1); //去除首尾的引号
+                jsonRes.put("clbr", clbrStr);
+                jsonDataSource.put("clbr", getCnByNm(dataSourceList.get(0), "Clbr"));
+            }
 
             List<String> tempCd = new ArrayList<>();
             jsonRes.put("cd", tempCd);
@@ -234,7 +244,7 @@ public class youdaoTool {
             jsonDataSource.put("idx", getCnByNm(dataSourceList.get(0), "Idx"));
             jsonRes.put("snstv", tempb.getSnstv());
             jsonDataSource.put("snstv", getCnByNm(dataSourceList.get(0), "Snstv"));
-            jsonRes.put("meta", tempb.getSnstv());
+            jsonRes.put("meta", tempb.getMeta());
             jsonDataSource.put("meta", getCnByNm(dataSourceList.get(0), "Meta"));
 
             jsonResult.put("res", jsonRes);
@@ -244,12 +254,15 @@ public class youdaoTool {
 
         html = lxtool.getWebCode("<html-handlebars>");
         html = html.replace("${title}", queryKey + " -查询结果 - 数据指标项目");
-        String loadscript ="";
-        loadscript +="<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>";
+        String loadscript = "";
+//        loadscript +="<script src=\"" + lxtool.getScriptCdnUrl("handlebars") + "\"></script>";
 //        JsStorageEntity jse = jsService.selectDataByNm("handlebars");
-//        loadscript += "<script>"+ jsService.selectDataByNm("handlebars").getCd() +"</script>";
-        loadscript += "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>";
-        loadscript += lxtool.getScriptCdnUrl("script-echart");
+//        loadscript += "<script>"+ jsService.selectDataByNm("handlebars").getCd().replace("\\\"","\"") +"</script>";
+//        loadscript += "<script src=\"" + lxtool.getScriptCdnUrl("jquery") + "\"></script>";
+//        loadscript += lxtool.getScriptCdnUrl("script-echart");
+        loadscript += "<script src=\"/getjs?jsn=handlebars\"></script>";
+        loadscript += "<script src=\"/getjs?jsn=jquery\"></script>";
+        loadscript += "<script src=\"/getjs?jsn=echarts\"></script>";
 
 
         html = html.replace("${loadScript}", loadscript);
@@ -259,18 +272,19 @@ public class youdaoTool {
         html = html.replace("${jsoninfo}", jsonResult.toJSONString());
         String chartModule = "";
         if (nodeRelation != null) {
-            chartModule = processEChartsModuleInfo(nodeRelation);
+            chartModule = processEChartsModuleInfo(nodeRelation, jsonRes.get("label").toString());
         }
 
         html = html.replace("${chartModule}", chartModule);
         return html;
     }
 
-    public String processEChartsModuleInfo(Map<Integer, Object> nodeRelationMap) {
+    public String processEChartsModuleInfo(Map<Integer, Object> nodeRelationMap, String nodeTag) {
         String res = "<div id=\"chartDiv\">未连接网络或网络质量不佳导致加载图形失败，请尝试刷新页面</div>";
-        res += "<script type=\"text/javascript\">        var chartDom = document.getElementById('chartDiv');        var myChart = echarts.init(chartDom);        var option;        var Jsongraph = {            \"nodes\": ${Jsongraph.nodeList},            \"links\": ${Jsongraph.linksList},            \"categories\": []        };       function processChart(graph) {   if (graph.nodes.length > 0) { $('#chartDiv').css('display', 'block') };         option = {                title: {                    text: '${Jsongraph.title}',                },                tooltip: {},                legend: [{                     selectedMode: 'single',                    data: graph.categories.map(function (a) {                        return a.Nm;                    })                }],                animationDuration: 1500,                animationEasingUpdate: 'quinticInOut',                series: [                    {                                             type: 'graph',                        layout: 'force',                        data: graph.nodes,                        links: graph.links,                        categories: graph.categories,                        roam: true,                         draggable:true,                        itemStyle: {                                                        color: {                                type: 'linear',                                x: 0,                                y: 0,                                x2: 0,                                y2: 1,                                colorStops: [{                                    offset: 0, color: 'lightcoral'                                 }, {                                    offset: 1, color: 'coral'                                 }],                            },                        },                        zoom: 10,                        label: {                            position: 'bottom',                                                     color:'white', backgroundColor:'coral', fontSize:12, padding:2,                           shadowColor:'gray',                            shadowBlur:5,                            shadowOffsetX:2,                            shadowOffsetY:2,                            show:true                        },                        edgeLabel:{                            show:true,                            formatter: '{c}',                        },      edgeSymbol: ['none', 'arrow'],                  lineStyle: {                            color: 'source',                   borderRadius: 2,         curveness: 0.2,                            width:5                        },                        emphasis: {                            focus: 'adjacency',                            lineStyle: {                                width: 15                            }                        }                    }                ]            };            myChart.setOption(option);            option && myChart.setOption(option);        };        processChart(Jsongraph)</script>";
+        res += "<script type=\"text/javascript\">        var chartDom = document.getElementById('chartDiv');        var myChart = echarts.init(chartDom);        var option;        var Jsongraph = {            \"nodes\": ${Jsongraph.nodeList},            \"links\": ${Jsongraph.linksList},            \"categories\": []        };       function processChart(graph) {   if (graph.nodes.length > 0) { $('#chartDiv').css('display', 'block') };         option = {                title: {                    text: '${Jsongraph.title}',                },                tooltip: {formatter:function(param){return '<strong>名称</strong>：'+param.data.name+' <hr/>单击查看节点详情'}},                legend: [{                     selectedMode: 'single',                    data: graph.categories.map(function (a) {                        return a.Nm;                    })                }],                animationDuration: 1500,                animationEasingUpdate: 'quinticInOut',                series: [                    {                                             type: 'graph',                        layout: 'force',                        data: graph.nodes,                        links: graph.links,                        categories: graph.categories,                        roam: true,                         draggable:true,                        itemStyle: {                                                        color: {                                type: 'linear',                                x: 0,                                y: 0,                                x2: 0,                                y2: 1,                                colorStops: [{                                    offset: 0, color: 'lightcoral'                                 }, {                                    offset: 1, color: 'coral'                                 }],                            },                        },                        zoom: 10,                        label: {                            position: 'bottom',                                                     color:'white', backgroundColor:'coral', fontSize:12, padding:2,                           shadowColor:'gray',                            shadowBlur:5,                            shadowOffsetX:2,                            shadowOffsetY:2,                            show:true                        },                        edgeLabel:{                            show:true,                            formatter: '{c}',                        },      edgeSymbol: ['none', 'arrow'],                  lineStyle: {                            color: 'source',                   borderRadius: 2,         curveness: 0.2,                            width:5                        },                        emphasis: {                            focus: 'adjacency',                            lineStyle: {                                width: 15                            }                        }                    }                ]            };            myChart.setOption(option);            option && myChart.setOption(option);   myChart.on('click',function(e){console.log(e);if(e.dataType!=='node')return false;window.open('http://" + sysTool.getLocalHost() + ":6868/fsearch?q='+e.data.name+'&sqk=' + e.data.tag +'&ist=true')})     };        processChart(Jsongraph)</script>";
 
         List<Object> nodeJson = new ArrayList<>(), linksJson = new ArrayList<>();
+        nodeTag = nodeTag.replace("《", "").replace("》", "");
         validNodeIdList = new ArrayList<>();
         for (int i = 0; i < nodeRelationMap.size(); i++) {
             Map<String, Object> nodeRelation = (Map<String, Object>) nodeRelationMap.get(i);
@@ -284,6 +298,7 @@ public class youdaoTool {
 
                 innerJson.put("id", suuid.toString());
                 innerJson.put("name", nodeRelation.get("startnode").toString());
+                innerJson.put("tag", nodeTag);
                 nodeJson.add(innerJson);
                 innerJson = new HashMap<>();
             }
@@ -292,6 +307,7 @@ public class youdaoTool {
 
                 innerJson.put("id", euuid.toString());
                 innerJson.put("name", nodeRelation.get("endnode").toString());
+                innerJson.put("tag", nodeTag);
                 nodeJson.add(innerJson);
                 innerJson = new HashMap<>();
 
@@ -346,7 +362,7 @@ public class youdaoTool {
      * @Return
      * @Description: 将查找的信息组成有道划词的显示格式
      */
-    public String translation(String queryKey, Object oriNodeList, String nodeType, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation, String sessionId) {
+    public String translation(String queryKey, Object oriNodeList, String nodeType, String nodeTag, List<String> nodeTagList, String isNewPage, Map<Integer, Object> nodeRelation, String sessionId) {
         if (queryKey == null || "".equals(queryKey.trim()) || queryKey == "Yodao dict Test" || queryKey == "Yodao dict Retest") {
             lxtool.soutLog("查询", queryKey, "查询字段与有道的无效关键字相同（非划词查询），查询终止");
             return getUnkown(queryKey, sessionId);
@@ -416,7 +432,7 @@ public class youdaoTool {
                     if (x != 0) res += "、";
                     res += "[" + nodeTagList.get(x).replace("Optional", "").trim() + "]";
                 }
-                res += "\t[访问"+(tempb.getCnt()==null?0:tempb.getCnt())+"次]\t";
+                res += "\t[访问" + (tempb.getCnt() == null ? 0 : tempb.getCnt()) + "次]\t";
                 res += "<a style='color:orange' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&sqk=" + nodeTagList.get(0).replace("Optional", "") + "&ist=true' >" + "[更多]" + "</a>";
 
 //
@@ -489,7 +505,7 @@ public class youdaoTool {
                     if (x != 0) res += "、";
                     res += "[" + nodeTagList.get(x).replace("Optional", "").trim() + "]";
                 }
-                res += "\t[访问"+(tempb.getCnt()==null?0:tempb.getCnt())+"次]\t";
+                res += "\t[访问" + (tempb.getCnt() == null ? 0 : tempb.getCnt()) + "次]\t";
                 res += "<a style='color:orange' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + queryKey + "&sqk=" + nodeTagList.get(0).replace("Optional", "") + "&ist=true' >" + "[更多]" + "</a>";
 
 

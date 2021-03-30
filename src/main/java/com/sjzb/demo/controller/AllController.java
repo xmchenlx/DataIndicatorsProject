@@ -2,13 +2,13 @@ package com.sjzb.demo.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sjzb.demo.MySessionContext;
+import com.sjzb.demo.config.SystemSetting;
 import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.TypeEnum;
 import com.sjzb.demo.model.UserOrderEntity;
-import com.sjzb.demo.service.*;
 import com.sjzb.demo.service.Node.*;
-import com.sjzb.demo.config.SystemSetting;
 import com.sjzb.demo.service.StatisticsEntity.GeneralRedisServiceImpl;
+import com.sjzb.demo.service.youdaoTool;
 import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -48,6 +48,8 @@ public class AllController {
     DataModelOfIBMNodeServiceImpl ibmModelService;
     @Autowired
     IndicatorsNodeServiceImpl indicatorService;
+    @Autowired
+    JsStorageServiceImpl jsService;
     lxTool lxtool = new lxTool();
     SystemSetting sysTool = new SystemSetting();
 
@@ -76,14 +78,30 @@ public class AllController {
             getWord(request, response);
         } else if (uri.equals("/fsetting")) {
             getWordSetting(request, response);
-        } else if(uri.equals("/r2n")){
+        } else if (uri.equals("/r2n")) {
             doProcessRedisToNeo4j();
+        } else if (uri.equals("/getjs")) {
+            getJsByName(request, response);
         }
 
 
     }
 
-    protected void doProcessRedisToNeo4j(){
+    protected void getJsByName(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        String jsPackageName = request.getParameter("jsn");            //提取Request信息里的查询字段
+        StringBuilder res = new StringBuilder();
+//        if(jsPackageName.equals("handlebars")){
+        res = jsService.getJsPackageByName(jsPackageName);
+//            res =  jsService.selectDataByNm("handlebars").getCd() ;
+//        }
+
+        response.setContentType("text/html;charset=UTF-8");
+//        System.out.println(translate);
+        response.getWriter().print(res);
+    }
+
+    protected void doProcessRedisToNeo4j() {
         GeneralRedisServiceImpl ttsi = new GeneralRedisServiceImpl();
         ttsi.InsertOrUpdateRequestNodeCountToNeo4j();
     }
@@ -194,7 +212,7 @@ public class AllController {
         if (searchBriefRes.size() == 0) {
             //查询无结果时，返回未知信息
             System.out.println("数据库没有找到划词的节点或关系，请求的关键词为：" + queryKey);
-            translate = ydtool.getUnkown(queryKey,sessionId);
+            translate = ydtool.getUnkown(queryKey, sessionId);
         } else {
             Map<String, Object> tempMap = new HashMap<>();
             Iterator<Integer> keys = searchBriefRes.keySet().iterator();
@@ -203,7 +221,7 @@ public class AllController {
             if (searchBriefRes.size() == 1 && (int) tempMap.get("len") < 2) {
                 //查询结果只有1条时，直接呈现详细结果
                 count++;
-                translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), (List<String>) tempMap.get("node_tag"), isNewPage, (Map<Integer, Object>) tempMap.get("node_relation"),sessionId);
+                translate = ydtool.translation(tempMap.get("node_Nm").toString(), tempMap.get("node_data"), tempMap.get("node_type").toString(), tempMap.get("node_tag").toString(), (List<String>) tempMap.get("node_tag"), isNewPage, (Map<Integer, Object>) tempMap.get("node_relation"), sessionId);
             } else {
 //                查询结果多条时，呈现结果列表
                 //循环节点实体数据
@@ -214,9 +232,9 @@ public class AllController {
                     if (tempBriefRes == null) continue;
                     List<?> queryDataList = (List<?>) tempBriefRes.get("node_data");
                     //循环节点内的List数据
-                    List<String> nodeTags = (List<String>)tempBriefRes.get("node_tag");
+                    List<String> nodeTags = (List<String>) tempBriefRes.get("node_tag");
 
-                    String nodeTag =nodeTags.toString().replace("Optional", "").replace("[","").replace("]","");
+                    String nodeTag = nodeTags.toString().replace("Optional", "").replace("[", "").replace("]", "");
                     int maxNum = queryDataList.size() > 50 ? 50 : queryDataList.size();
                     String ifMaxOver50Str = (maxNum == 50 ? "的前50项" : "");
                     dataString += "<h5 style='color:black;'>在 " + nodeTag + " 找到" + queryDataList.size() + "项" + ifMaxOver50Str + "</h5>";
@@ -225,7 +243,7 @@ public class AllController {
                         BaseNodeEntity nodeData = (BaseNodeEntity) queryDataList.get(i);
                         String nodeName = nodeData.getNm();
                         count++;
-                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + nodeTags.get(0).replace("Optional","") + "&ist=true' >" + nodeName + "</a><span id=\"tinytext\">["+nodeTag+"]</span></p>";
+                        dataString += "<p  class='listText'><a id='" + nodeTag + "' alt='点击将会跳转到浏览器展示详细信息' target='_blank' href='http://" + sysTool.getLocalHost() + ":6868/fsearch?q=" + nodeName + "&sqk=" + nodeTags.get(0).replace("Optional", "") + "&ist=true' >" + nodeName + "</a><span id=\"tinytext\">[" + nodeTag + "]</span></p>";
                     }
                     dataString += "<br/>";
                     if (keys.hasNext())

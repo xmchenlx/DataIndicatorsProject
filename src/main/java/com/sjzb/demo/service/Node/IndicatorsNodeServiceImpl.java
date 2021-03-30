@@ -104,14 +104,7 @@ public class IndicatorsNodeServiceImpl {
         res.put("node_tag", nodeTagList);
         res.put("node_type", "IndicatorsNodeEntity");
         res.put("len", t.size());
-//       精确访问某一个节点需要， 统计访问次数，先载入缓存（60分钟）
-//        redisServiceImpl.InsertOrUpdateRequestNodeCount(selectedNm);
         addingRequestCount(selectedNm,t.get(0).getCnt());
-//        Integer nowClickCount = 1,  nodeCnt = t.get(0).getCnt();
-//        if (nodeCnt != null && nodeCnt > 0) {
-//            nowClickCount += nodeCnt;
-//        }
-//        Object a = indicateRe.setNewCount(selectedNm, nowClickCount);
         return res;
     }
 
