@@ -77,7 +77,7 @@ public class lxTool {
         if (name == "CodeNodeEntity")
             return "代码";
         if (name == "BasicAndClassWordEntity")
-            return "标准别名";
+            return "基本词类词";
 //            return "基本词类词";
         if(name == "IndicatorsNodeEntity")
             return "指标";

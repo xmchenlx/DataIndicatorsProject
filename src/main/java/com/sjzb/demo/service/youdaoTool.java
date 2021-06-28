@@ -208,7 +208,7 @@ public class youdaoTool {
             jsonRes.put("def", validIsNull(tempb.getDef()));
             jsonDataSource.put("def", getCnByNm(dataSourceList.get(0), "Def"));
 
-            Object cyc = (tempb.getCyc() == null ? "" : tempb.getCyc().get(0));
+            Object cyc = (tempb.getCyc() == null ? "" : tempb.getCyc());
             jsonRes.put("cyc", validIsNull(cyc.toString()));
             jsonDataSource.put("cyc", getCnByNm(dataSourceList.get(0), "Cyc"));
 
@@ -218,7 +218,7 @@ public class youdaoTool {
             String clbrStr = "";
             //Clbr属性有的结点并没有这个属性，添加if判断以避免报错 --20210330
             if (tempb.getClbr() != null) {
-                clbrStr = validIsNull(tempb.getClbr().toString().replace("\\", ""));
+                clbrStr = validIsNull(tempb.getClbr().replace("\\", ""));
 
                 //判断是否有值
 
@@ -233,13 +233,13 @@ public class youdaoTool {
             jsonDataSource.put("cd", getCnByNm(dataSourceList.get(0), "Cd"));
             jsonRes.put("cmnt", tempb.getCmnt());
             jsonDataSource.put("cmnt", getCnByNm(dataSourceList.get(0), "Cmnt"));
-            if (tempb.getIdx() != null) {
-                String qqqqqqq = tempb.getIdx().getClass().getName();
-                if (tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.ListValue") || tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.StringValue")) {
-                    String tempIdxRes = lxtool.getStringFromListValueOrStringValue(tempb.getIdx());
-                    tempb.setIdx(tempIdxRes);
-                }
-            }
+//            if (tempb.getIdx() != null) {
+//                String qqqqqqq = tempb.getIdx().getClass().getName();
+//                if (tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.ListValue") || tempb.getIdx().getClass().getName().equals("org.neo4j.driver.internal.value.StringValue")) {
+//                    String tempIdxRes = lxtool.getStringFromListValueOrStringValue(tempb.getIdx());
+//                    tempb.setIdx(tempIdxRes);
+//                }
+//            }
             jsonRes.put("idx", tempb.getIdx());
             jsonDataSource.put("idx", getCnByNm(dataSourceList.get(0), "Idx"));
             jsonRes.put("snstv", tempb.getSnstv());
@@ -440,7 +440,6 @@ public class youdaoTool {
                 res += "</span><br/><br/>";
                 res += "<span class='infotitle'>" +
                         getCnByNm(dataSourceList.get(0), "Cl") + "：</span><span class='infotext'>" + tempb.getCl() + "</span><br/>";
-
             }
 //            res += lxtool.writeTempNote("数据元缺失");
 

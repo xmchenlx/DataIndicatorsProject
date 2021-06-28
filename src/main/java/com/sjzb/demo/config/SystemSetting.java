@@ -47,6 +47,7 @@ public class SystemSetting {
      */
     public void runYodaoDictProxySetting() throws IOException {
         Runtime rn = Runtime.getRuntime();
+        System.out.println("【配置词典】即将打开有道词典代理设置外部程序来链接数据指标词典数据库。");
         Process p = null;
         try {
             String appPath = getSystemPath();

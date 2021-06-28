@@ -1,6 +1,5 @@
 package com.sjzb.demo.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
@@ -23,7 +22,6 @@ import java.util.List;
 @NodeEntity(label = "指标")
 @Data
 @ConstructorBinding
-@AllArgsConstructor
 public class IndicatorsNodeEntity extends BaseNodeEntity {
 
     @Property(name = "Nm")
@@ -36,9 +34,9 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
     @Property(name ="Attr")
     private String attr;
     @Property(name ="Clbr")
-    private Object clbr;
+    private String clbr;
     @Property(name ="Cyc")
-    private List<String> cyc;
+    private String cyc;
     @Property(name ="Def")
     private String def;
     @Property(name ="Fmt")
@@ -62,25 +60,11 @@ public class IndicatorsNodeEntity extends BaseNodeEntity {
     private Integer cnt;
 
 
+
+
     public IndicatorsNodeEntity() {
     }
 
-    public IndicatorsNodeEntity(String nm, String unt, String src, String attr, Object clbr, List<String> cyc, String def, String fmt, String no, List<String> us, String snstv, Object idx, String meta, List<IndicatorsNodeEntity> rel) {
-        this.nm = nm;
-        this.unt = unt;
-        this.src = src;
-        this.attr = attr;
-        this.clbr = clbr;
-        this.cyc = cyc;
-        this.def = def;
-        this.fmt = fmt;
-        this.no = no;
-        this.us = us;
-        this.snstv = snstv;
-        this.idx = idx;
-        this.meta = meta;
-        this.rel = rel;
-    }
 
     @Override
     public String getSrc() {

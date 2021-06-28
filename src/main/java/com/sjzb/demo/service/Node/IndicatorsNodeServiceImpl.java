@@ -4,7 +4,6 @@ import com.sjzb.demo.Repository.Node.IndicatorsNodeRepository;
 import com.sjzb.demo.Repository.Relationship.RelationIndicatorNodeRepository;
 import com.sjzb.demo.model.IndicatorsNodeEntity;
 import com.sjzb.demo.model.TypeEnum;
-import com.sjzb.demo.service.StatisticsEntity.GeneralRedisServiceImpl;
 import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,12 +29,6 @@ public class IndicatorsNodeServiceImpl {
     private RelationIndicatorNodeRepository reIndicateRe;
 
     private lxTool lxtool = new lxTool();
-
-    //Redis服务实现
-//    private GeneralRedisServiceImpl redisServiceImpl = new GeneralRedisServiceImpl();
-
-    @Autowired
-    private GeneralRedisServiceImpl redisServiceImpl;
 
     /**
      * @Author: chenlx

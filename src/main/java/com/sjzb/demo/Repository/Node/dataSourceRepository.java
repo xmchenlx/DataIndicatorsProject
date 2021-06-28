@@ -19,5 +19,4 @@ public interface dataSourceRepository extends Neo4jRepository<DataSourceEntity, 
     @Query("MATCH (n:`数据元`) where n.Nm = $Nm return n limit 1")
     List<DataSourceEntity> findDataSourceEntityByNm(@Param("Nm") String nm);
 
-
 }

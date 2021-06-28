@@ -7,7 +7,6 @@ import com.sjzb.demo.model.BaseNodeEntity;
 import com.sjzb.demo.model.TypeEnum;
 import com.sjzb.demo.model.UserOrderEntity;
 import com.sjzb.demo.service.Node.*;
-import com.sjzb.demo.service.StatisticsEntity.GeneralRedisServiceImpl;
 import com.sjzb.demo.service.youdaoTool;
 import com.sjzb.demo.util.lxTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +51,14 @@ public class AllController {
     JsStorageServiceImpl jsService;
     lxTool lxtool = new lxTool();
     SystemSetting sysTool = new SystemSetting();
+    proController proCon = new proController();
 
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request, response);
     }
 
-    @GetMapping("/*")
+    @GetMapping("/fsearch")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         MySessionContext myc = MySessionContext.getInstance();
@@ -76,17 +76,19 @@ public class AllController {
         String uri = request.getRequestURI();
         if (uri.equals("/fsearch")) {
             getWord(request, response);
-        } else if (uri.equals("/fsetting")) {
-            getWordSetting(request, response);
-        } else if (uri.equals("/r2n")) {
-            doProcessRedisToNeo4j();
-        } else if (uri.equals("/getjs")) {
-            getJsByName(request, response);
         }
+//        } else if (uri.equals("/fsetting")) {
+//            getWordSetting(request, response);
+//        } else if (uri.equals("/getjs")) {
+//            getJsByName(request, response);
+//        }else if(uri.substring(0,4).equals("/pro")){
+//            proCon.doGet(request,response);
+//        }
 
 
     }
 
+    @GetMapping("/getjs")
     protected void getJsByName(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String jsPackageName = request.getParameter("jsn");            //提取Request信息里的查询字段
@@ -101,10 +103,6 @@ public class AllController {
         response.getWriter().print(res);
     }
 
-    protected void doProcessRedisToNeo4j() {
-        GeneralRedisServiceImpl ttsi = new GeneralRedisServiceImpl();
-        ttsi.InsertOrUpdateRequestNodeCountToNeo4j();
-    }
 
     protected UserOrderEntity generateDefaultSessionInfo(HttpSession session) {
         UserOrderEntity uoe = (UserOrderEntity) session.getAttribute("sjzb_order");
@@ -138,12 +136,14 @@ public class AllController {
             List<Integer> dataSel = new ArrayList<>();
 //            根据需求，默认值只查询基本词类词
             dataSel.add(TypeEnum.IndicatorsNode.getIndex());
+            dataSel.add(TypeEnum.Code.getIndex());
             dataSel.add(TypeEnum.BasicAndClassWord.getIndex());
             uoe.setSelect(dataSel);
         }
         return uoe;
     }
 
+    @GetMapping("/fsetting")
     protected void getWordSetting(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String webRes = "";
         String sessionId = request.getParameter("sid");

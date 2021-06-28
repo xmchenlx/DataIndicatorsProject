@@ -1,10 +1,42 @@
-# This is the tool of test demo program named Data Indicators Project.
+# 项目入口
 
-This tool can help the business people who are meeting the trouble which process the data information but can not understand the meaning of some word. 
+java项目是在前一位开发编写的基础上进行更改和添加功能。目前java项目可以与有道翻译软件搭配使用。在有道配置代理信息后，就可以使用划词功能对数据库上的内容进行读取。
 
-This tool is stored data in Neo4j Desktp(4.2.1) , proceed requests by Springboot. if you want to running this demo, you have to installed the JDK11 in your PC, and checked  the environment variable was correct also.
+程序的访问入口，在`src\main\java\com\sjzb\demo\DemoApplication.java`，而java接收的请求全部都在`src\main\java\com\sjzb\demo\controller\AllController.java`里接收。
 
 
+
+## 有道划词的请求处理
+
+有道的请求都带有`/fsearch`,这个请求被函数拦截后，会进行处理。程序会读取数据库中的基本词类词、指标等标签进行模糊查询，返回相应的结果。
+
+### 直接显示
+
+直接显示指的是查询的结果直接返回到有道的页面上。通常这个信息只显示简短的名称列表。
+
+### 跳转显示
+
+跳转显示指的是从有道页面上单击某一个模糊查询列表的项，跳转到浏览器的页面上展示该项的所有属性信息，如果包含关系信息，则会在页面底部绘制图表信息。
+
+#  代码解释
+
+项目中主要为控制层、模型层、服务层、JDBC部分等。
+
+控制层接收请求并进行简单处理与转发。
+
+模型层记录着Neo4j数据库中每一个标签的一些属性信息、实体之间的关系描述等。
+
+实现层主要是与JDBC部分对接，获取并处理数据后返回到控制层，主要包括查询结点、结点关系。
+
+JDBC部分的内容放到了`Repository`里，这里等同于mapper。存储着与Neo4j数据库交互的Cql查询代码。
+
+`Result`主要用于同一返回的JSON格式，但在有道的直接显示的功能里，有自己的数据格式，所以`Result`类就并不适用。
+
+其余文件在代码中均有注释，就不在这里阐明。
+
+# sjzb_proxy_setting.exe文件
+
+这个文件用于快速配置有道程序的代理信息。
 
 # Commit Log
 ## 2021-03-16
